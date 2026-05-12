@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <button id="btnBack" class="icon-back" title="Voltar para a tela inicial" style="display: none;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <use href="#icon-arrow-left"></use>
+        </svg>
+    </button>
+
+    <div class="container">
+
+        <h2>Leads</h2>
+
+        <div id="searchArea">
+            <div class="field-container">
+                <div class="input-wrapper">
+                    <input type="text" id="searchTerm" placeholder="Busque aqui">
+                    <button id="searchBtn" class="search-icon" title="Buscar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <use href="#icon-search"></use>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <button id="btnManageSites" class="btn-secondary" style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <use href="#icon-settings"></use>
+            </svg>
+            Gerenciar sites
+        </button>
+
+        <div id="status" class="status"></div>
+
+        <div id="exportArea" class="export-container" style="display: none;">
+            <span style="color: #ffffff; font-size: 14px; font-weight: bold;">Exportar leads:</span>
+            <button id="btnCSV" class="btn-export csv">CSV</button>
+            <button id="btnPDF" class="btn-export pdf">PDF</button>
+        </div>
+
+        <div id="resultsLista" class="results-container"></div>
+
+        <section class="recent-searches">
+            <div class="history-header" style="display: flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <use href="#icon-history"></use>
+                </svg>
+                <span style="font-weight: bold; font-size: 16px;">Buscas Recentes</span>
+            </div>
+            <div id="historicoCard">
+                <p style="color: rgb(0, 0, 0); font-size: 16px;">Carregando histórico...</p>
+
+            </div>
+        </section>
+
+        <div id="manageSitesArea" style="display: none; width: 100%; flex-direction: column; align-items: center; margin-top: 20px;">
+            <div class="manage-header" style="display: flex; align-items: center; justify-content: flex-start; width: 100%; margin-bottom: 25px;">
+                <button id="btnBackManage" class="icon-back" title="Voltar" style="position: static; margin-right: 15px; margin-top: 0; width: auto;">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <use href="#icon-arrow-left"></use>
+                    </svg>
+                </button>
+                <h2 style="margin: 0; font-size: 18px;">Gerenciar Sites</h2>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-info">
+                    <span class="platform-icon">
+                        <svg width="20" height="20" fill="currentColor"><use href="#icon-google"></use></svg>
+                    </span>
+                    <span class="platform-name">Google</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="toggleGoogle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-info">
+                    <span class="platform-icon">
+                        <svg width="20" height="20" fill="currentColor"><use href="#icon-linkedin"></use></svg>
+                    </span>
+                    <span class="platform-name">LinkedIn</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="toggleLinkedin">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-info">
+                    <span class="platform-icon">
+                        <svg width="20" height="20" fill="currentColor"><use href="#icon-instagram"></use></svg>
+                    </span>
+                    <span class="platform-name">Instagram</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="toggleInstagram">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <script src="../libs/jspdf.umd.min.js"></script>
+    <script src="popup.js" type="module"></script>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Lead Hunter",
+  "version": "1.0",
+  "permissions": ["sidePanel", "tabs", "scripting", "storage", "unlimitedStorage"],
+
+  "host_permissions": [
+    "https://www.google.com/*",
+    "https://www.linkedin.com/*",
+    "https://www.instagram.com/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js" 
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.google.com/search*", "https://www.google.com.br/search*"],
+      "js": ["scripts/scraper_utils.js", "scripts/scraper_google.js"]
+    },
+    {
+      "matches": ["https://www.linkedin.com/search/results/people/*"],
+      "js": ["scripts/scraper_utils.js", "scripts/scraper_linkedin.js"]
+    },
+    {
+      "matches": ["https://www.instagram.com/*"],
+      "js": ["scripts/scraper_utils.js", "scripts/scraper_instagram.js"]
+    }
+  ],
+
+  "side_panel": {
+    "default_path": "/side panel/popup.html"
+  },
+
+  "action": {
+    "default_title": "Abrir Leed Hunter"
+  }
+
+}
