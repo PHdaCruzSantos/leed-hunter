@@ -1,12 +1,10 @@
-import { exibirDetalhesDosLeads, getLeadsColetados } from '../side panel/popup.js'
-import { UI } from './ui.js'
+import { exibirDetalhesDosLeads, getLeadsColetados } from '../side panel/resultados.js'
 
 let consultaAtual = "";
 let totalScripts = 3;
 let scriptsRecebidos = 0;
 
-export function realizarBusca() {
-    const consulta = document.getElementById('searchTerm').value;
+export function realizarBusca(consulta) {
     const statusDiv = document.getElementById('status');
     const resultsLista = document.getElementById('resultsLista');
 
@@ -53,7 +51,7 @@ export function realizarBusca() {
             statusDiv.style.color = "#ffffff";
             statusDiv.innerText = `Busca iniciada em ${totalScripts} plataforma(s)...`;
 
-            UI.mudarTela('searching');
+
         });
     } else {
         statusDiv.style.color = "#aaaaaa";
@@ -110,7 +108,12 @@ function criaHistorico(consulta, leadsColetados) {
         };
 
         const novoHistorico = [novaEntrada, ...result.historico].slice(0, 20);
-        console.log("Novo hisotirco: ", novoHistorico);
+        //console.log("Novo hisotirco: ", novoHistorico);
+        chrome.runtime.sendMessage({
+            action: "DEBUG_LOG",
+            dados: novoHistorico
+        });
+
         chrome.storage.local.set({
             historico: novoHistorico,
             indexConsulta: currentIndex + 1

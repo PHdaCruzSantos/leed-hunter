@@ -12,7 +12,6 @@ async function extrairDadosBusca() {
 
                 leadsColetados.push({
                     nome: usuario.full_name || usuario.username,
-                    user: usuario.username,
                     site: siteFormatado,
                     origem: window.location.href
                 });

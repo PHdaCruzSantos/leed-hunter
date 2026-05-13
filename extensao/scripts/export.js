@@ -3,6 +3,7 @@ export function downloadCSV(lista_de_leads, termo = "Busca", data = "") {
 
     const leadsGoogle = lista_de_leads.filter(item => item.origem && item.origem.includes('google'));
     const leadsLinkedin = lista_de_leads.filter(item => item.origem && item.origem.includes('linkedin'));
+    const leadsInstagram = lista_de_leads.filter(item => item.origem && item.origem.includes('instagram'));
 
     let csv = `Busca: ${termo}\nData: ${data} | Leads coletados: ${lista_de_leads.length}\n\n`;
 
@@ -14,6 +15,11 @@ export function downloadCSV(lista_de_leads, termo = "Busca", data = "") {
     csv += "\nLeads coletados no LinkedIn:\nNome,Profissao,Site\n";
     leadsLinkedin.forEach(item => {
         csv += `"${item.nome}","${item.profissao || item.telefone || ''}","${item.site}"\n`;
+    });
+
+        csv += "\nLeads coletados no Instagram:\nNome,Conta\n";
+    leadsInstagram.forEach(item => {
+        csv += `"${item.nome}","${item.site}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -45,6 +51,7 @@ export function downloadPDF(lista_de_leads, termo = "Busca", data = "") {
 
     const leadsGoogle = lista_de_leads.filter(item => item.origem && item.origem.includes('google'));
     const leadsLinkedin = lista_de_leads.filter(item => item.origem && item.origem.includes('linkedin'));
+    const leadsInstagram = lista_de_leads.filter(item => item.origem && item.origem.includes('instagram'));
 
     if (leadsGoogle.length > 0) {
         doc.setFont("helvetica", "bold");
@@ -122,6 +129,43 @@ export function downloadPDF(lista_de_leads, termo = "Busca", data = "") {
         });
     }
 
+    if (leadsInstagram.length > 0) {
+        if (y > 260) {
+            doc.addPage();
+            y = 20;
+        }
+        y += 4;
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text("Leads coletados no Instagram:", 10, y); 
+        y += 8;
+
+        leadsInstagram.forEach((item, i) => {
+            if (y > 270) {
+                doc.addPage();
+                y = 20;
+            }
+
+            const labelNome = `${i + 1}. Nome:`;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text(labelNome, 10, y);
+            const larguraNome = doc.getTextWidth(labelNome);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${item.nome}`, 10 + larguraNome + 2, y);
+
+            y += 6;
+            const labelSite = `Instagram:`;
+            doc.setFont("helvetica", "bold");
+            doc.text(labelSite, 15, y);
+            const larguraSite = doc.getTextWidth(labelSite);
+
+            desenharSiteParaContato(doc, item, y, 15 + larguraSite + 2);
+            y += 12;
+        });
+    }
+
     doc.save("leads_extraidos.pdf");
 }
 
@@ -133,7 +177,7 @@ function desenharSiteParaContato(doc, item, y, startX) {
             urlPura = 'https://' + urlPura;
         }
 
-        const textoLink = "Entrar em contato";
+        const textoLink = "Acesse";
         const larguraTexto = doc.getTextWidth(textoLink);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(0, 0, 0);

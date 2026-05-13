@@ -5,7 +5,7 @@ body {
     flex-direction: column;
     font-family: 'Segoe UI', sans-serif;
     padding: 25px;
-    background-color: #0b1523;
+    background-color: #212121; /* preto n mt preto */
     color: #e0e0e0;
     margin: 0;
     box-sizing: border-box;
@@ -23,8 +23,8 @@ body {
 }
 
 h2 {
-    color: #ffffff;
-    margin-bottom: 25px;
+    color: #EDEAE0; /* branco n mt branco */
+    margin-bottom: 25px; 
     font-size: 22px;
     letter-spacing: 1px;
 }
@@ -42,7 +42,7 @@ h2 {
     margin-left: 2px;
 }
 
-.input-wrapper {
+.input-wrapper { /* barra de pesquisa */
     display: flex;
     align-items: center;
     border-bottom: 2px solid #555555;
@@ -129,7 +129,7 @@ button:hover {
     padding: 15px;
     margin-bottom: 8px;
     border-radius: 16px;
-    border: 1px solid #555555;
+    border: 1px solid #555555; /* aqui */
     display: flex;
     flex-direction: column;
     font-size: 15px;
@@ -137,6 +137,57 @@ button:hover {
     width: 100%;
     box-sizing: border-box;
 }
+
+.platform-group {
+    /* TESTE: Bordas do grupo desativadas para o novo visual */
+    border: 2px solid transparent; 
+    border-radius: 20px;
+    padding: 15px;
+    padding-top: 5px;
+    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.02); 
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Centraliza a div que contém o h3 */
+.platform-group>div:first-child {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+
+.platform-group h3 {
+    margin: 10px auto 20px auto !important;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+}
+
+
+
+/* estilo de borda que circula o card todo*/
+.platform-group.google-group {
+    box-shadow: 0px 0px 15px #34A853;
+    border-color: #34A853; 
+}
+.platform-group.linkedin-group {
+    box-shadow: 0px 0px 15px #0077b5;
+    border-color: #0077b5;
+}
+.platform-group.instagram-group {
+    box-shadow: 0px 0px 15px #E1306C;
+    border-color: #E1306C;
+}
+
+
+
 
 .lead-card strong {
     color: #ffffff;
@@ -225,7 +276,18 @@ button:hover {
     align-items: center;
     padding-top: 25px;
     padding-bottom: 20px;
-    color: #ffffff;
+    color: #EDEAE0;
+}
+
+.history-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.history-header span {
+    font-weight: bold;
+    font-size: 16px;
 }
 
 #historicoCard {
@@ -254,7 +316,7 @@ button:hover {
 }
 
 #historicoCard li {
-    font-size: 14px;
+    font-size: 17px;
     padding: 20px 15px;
     color: #dddddd;
     background: transparent;
@@ -294,9 +356,9 @@ button:hover {
 }
 
 #historicoCard p {
-    font-size: 14px;
+    font-size: 16px;
     padding: 10px 0;
-    color: #dddddd;
+    color: rgb(0, 0, 0);
     text-align: center;
 }
 
@@ -337,6 +399,39 @@ button:hover {
     padding-right: 30px;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#manageSitesArea {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.manage-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.manage-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+#btnBackManage {
+    position: static;
+    margin-right: 15px;
+    margin-top: 0;
+    width: auto;
 }
 
 .platform-card {
@@ -368,7 +463,7 @@ button:hover {
 
 .platform-name {
     font-size: 16px;
-    font-weight: 500;
+    font-weight: bold;
     color: #e0e0e0;
 }
 

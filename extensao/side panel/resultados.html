@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <button id="btnBack" class="icon-back" title="Voltar para a tela inicial">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <use href="#icon-arrow-left"></use>
+        </svg>
+    </button>
+
+    <div class="container">
+        <h2>Leads</h2>
+
+        <div id="status" class="status"></div>
+
+        <div id="exportArea" class="export-container" style="display: none;">
+            <span style="color: #EDEAE0; font-size: 14px; font-weight: bold;">Exportar leads:</span>
+            <button id="btnCSV" class="btn-export csv">CSV</button>
+            <button id="btnPDF" class="btn-export pdf">PDF</button>
+        </div>
+
+        <div id="queryInfo" style="margin-top: 15px; margin-bottom: 15px; color: #EDEAE0; font-size: 14px;"></div>
+
+        <div id="resultsLista" class="results-container"></div>
+    </div>
+
+    <script src="../libs/jspdf.umd.min.js"></script>
+    <script src="resultados.js" type="module"></script>
+</body>
+
+</html>

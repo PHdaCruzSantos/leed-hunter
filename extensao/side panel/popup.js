@@ -1,17 +1,4 @@
-import { downloadCSV, downloadPDF } from '../scripts/export.js'
-import { realizarBusca } from '../scripts/gestaoDeBusca.js'
 import { UI } from '../scripts/ui.js'
-
-let leadsColetados = [];
-let googleLimite = 5;
-let linkedinLimite = 5;
-let instagramLimite = 5;
-let termoAtual = "Busca Ativa";
-let dataAtual = "";
-
-export function getLeadsColetados() {
-    return leadsColetados;
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     fetch('./src/icons.html')
@@ -34,7 +21,7 @@ document.getElementById('btnBackManage').addEventListener('click', () => {
     UI.mudarTela('home');
 });
 
-// Carregar e salvar preferências de busca (plataformas)
+// Carregar e salvar preferências de busca
 function carregarPreferenciasDeBusca() {
     chrome.storage.local.get({
         plataformasAtivas: {
@@ -61,174 +48,6 @@ function salvarPreferenciasDeBusca() {
 document.getElementById('toggleGoogle').addEventListener('change', salvarPreferenciasDeBusca);
 document.getElementById('toggleLinkedin').addEventListener('change', salvarPreferenciasDeBusca);
 document.getElementById('toggleInstagram').addEventListener('change', salvarPreferenciasDeBusca);
-
-export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
-    if (isHistorico) {
-        leadsColetados = novosLeads;
-    } else {
-        leadsColetados = [...leadsColetados, ...novosLeads];
-    }
-    const resultsLista = document.getElementById('resultsLista');
-    resultsLista.innerHTML = "";
-
-    const leadsGoogle = leadsColetados.filter(item => item.origem && item.origem.includes('google'));
-    const leadsLinkedIn = leadsColetados.filter(item => item.origem && item.origem.includes('linkedin'));
-    const leadsInstagram = leadsColetados.filter(item => item.origem && item.origem.includes('instagram'));
-
-    // seção do Google
-    if (leadsGoogle.length > 0) {
-        const secaoGoogle = document.createElement('div');
-        secaoGoogle.innerHTML = `<h3 style="color: #ffffff; margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 6px;">
-            <svg width="16" height="16" fill="currentColor">
-                <use href="#icon-google"></use>
-            </svg> Resultados do Google
-        </h3>`;
-        resultsLista.appendChild(secaoGoogle);
-
-        //const limiteGoogle = googleLimite;
-
-        leadsGoogle.slice(0, googleLimite).forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'lead-card';
-            card.innerHTML = `
-            <strong>${item.nome}</strong>
-            <span>📱 ${item.telefone}</span>
-            <span>🔗 ${item.site}</span>
-            `;
-            resultsLista.appendChild(card);
-        });
-
-        const googleBtnContainer = document.createElement('div');
-        googleBtnContainer.style.display = 'flex';
-        googleBtnContainer.style.gap = '10px';
-        googleBtnContainer.style.marginTop = '10px';
-        googleBtnContainer.style.marginBottom = '10px';
-
-        adicionarBotoesDePaginacao(googleLimite, leadsGoogle.length, googleBtnContainer, 'google');
-
-        if (googleBtnContainer.childNodes.length > 0) {
-            resultsLista.appendChild(googleBtnContainer);
-        }
-    }
-
-    // seção do Linkedin
-    if (leadsLinkedIn.length > 0) {
-        const sectionLinkedIn = document.createElement('div');
-        const margemTopo = leadsGoogle.length > 0 ? "20px" : "10px";
-        sectionLinkedIn.innerHTML = `<h3 style="color: #ffffff; margin: ${margemTopo} 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 6px;">
-            <svg width="16" height="16" fill="currentColor">
-                <use href="#icon-linkedin"></use>
-            </svg> Resultados do LinkedIn
-        </h3>`;
-        resultsLista.appendChild(sectionLinkedIn);
-
-        const limitLinkedIn = linkedinLimite;
-
-        leadsLinkedIn.slice(0, limitLinkedIn).forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'lead-card';
-            card.innerHTML = `
-            <strong>${item.nome}</strong>
-            <span>💼 ${item.profissao}</span>
-            <span>🔗 ${item.site}</span>
-            `;
-            resultsLista.appendChild(card);
-        });
-
-        const linkedinBtnContainer = document.createElement('div');
-        linkedinBtnContainer.style.display = 'flex';
-        linkedinBtnContainer.style.gap = '10px';
-        linkedinBtnContainer.style.marginTop = '10px';
-        linkedinBtnContainer.style.marginBottom = '10px';
-
-        adicionarBotoesDePaginacao(linkedinLimite, leadsLinkedIn.length, linkedinBtnContainer, 'linkedin');
-
-        if (linkedinBtnContainer.childNodes.length > 0) {
-            resultsLista.appendChild(linkedinBtnContainer);
-        }
-    }
-
-    // seção do Instagram
-    if (leadsInstagram.length > 0) {
-        const sectionInstagram = document.createElement('div');
-        const margemTopo = (leadsGoogle.length > 0 || leadsLinkedIn.length > 0) ? "20px" : "10px";
-        sectionInstagram.innerHTML = `<h3 style="color: #ffffff; margin: ${margemTopo} 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 6px;">
-            <svg width="16" height="16" fill="currentColor">
-                <use href="#icon-instagram"></use>
-            </svg> Resultados do Instagram
-        </h3>`;
-        resultsLista.appendChild(sectionInstagram);
-
-        const limitInstagram = instagramLimite;
-
-        leadsInstagram.slice(0, limitInstagram).forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'lead-card';
-            card.innerHTML = `
-            <strong>${item.nome}</strong>
-            <span>📸 @${item.user || "N/A"}</span>
-            <span>🔗 ${item.site}</span>
-            `;
-            resultsLista.appendChild(card);
-        });
-
-        const instagramBtnContainer = document.createElement('div');
-        instagramBtnContainer.style.display = 'flex';
-        instagramBtnContainer.style.gap = '10px';
-        instagramBtnContainer.style.marginTop = '10px';
-        instagramBtnContainer.style.marginBottom = '10px';
-
-        adicionarBotoesDePaginacao(instagramLimite, leadsInstagram.length, instagramBtnContainer, 'instagram');
-
-        if (instagramBtnContainer.childNodes.length > 0) {
-            resultsLista.appendChild(instagramBtnContainer);
-        }
-    }
-
-    if (isHistorico) {
-        const statusDiv = document.getElementById('status');
-        if (statusDiv) {
-            statusDiv.style.color = "#ffffff";
-            statusDiv.innerText = `${leadsColetados.length} leads exibidos do histórico!`;
-        }
-    }
-}
-
-function adicionarBotoesDePaginacao(limiteAtual, totalDeLeads, containerDeBotoes, origem) {
-    if (limiteAtual < totalDeLeads) {
-        const btnMais = document.createElement('button');
-        const restantes = totalDeLeads - limiteAtual;
-        const paraMostrar = Math.min(5, restantes);
-        btnMais.innerText = `Ver mais (${paraMostrar})`;
-        btnMais.addEventListener('click', () => {
-            if (origem === 'google') {
-                googleLimite += 5;
-            } else if (origem === 'linkedin') {
-                linkedinLimite += 5;
-            } else if (origem === 'instagram') {
-                instagramLimite += 5;
-            }
-            exibirDetalhesDosLeads([]);
-        });
-        containerDeBotoes.appendChild(btnMais);
-    }
-
-    if (limiteAtual > 5) {
-        const btnMenos = document.createElement('button');
-        btnMenos.innerText = `Recolher`;
-        btnMenos.addEventListener('click', () => {
-            if (origem === 'google') {
-                googleLimite = 5;
-            } else if (origem === 'linkedin') {
-                linkedinLimite = 5;
-            } else if (origem === 'instagram') {
-                instagramLimite = 5;
-            }
-            exibirDetalhesDosLeads([]);
-        });
-        containerDeBotoes.appendChild(btnMenos);
-    }
-}
 
 function renderizarHistorico() {
     chrome.storage.local.get({ historico: [] }, (result) => {
@@ -276,13 +95,6 @@ function renderizarHistorico() {
             });
 
             li.addEventListener('click', () => {
-                googleLimite = 5;
-                linkedinLimite = 5;
-                instagramLimite = 5;
-                termoAtual = item.termo;
-                dataAtual = item.data;
-
-                // Suporta formato antigo (array) e novo (objeto separado por plataformas)
                 let leadsParaExibir = [];
                 if (Array.isArray(item.leads)) {
                     leadsParaExibir = item.leads;
@@ -294,8 +106,16 @@ function renderizarHistorico() {
                     ];
                 }
 
-                exibirDetalhesDosLeads(leadsParaExibir, true);
-                UI.mudarTela('results');
+                chrome.storage.local.set({
+                    acaoPendente: {
+                        tipo: 'historico',
+                        termo: item.termo,
+                        data: item.data,
+                        leads: leadsParaExibir
+                    }
+                }, () => {
+                    window.location.href = 'resultados.html';
+                });
             });
             ul.appendChild(li);
         });
@@ -303,45 +123,24 @@ function renderizarHistorico() {
     });
 }
 
-document.getElementById('searchBtn').addEventListener('click', () => {
-    googleLimite = 5;
-    linkedinLimite = 5;
-    instagramLimite = 5;
-    termoAtual = document.getElementById('searchTerm').value;
-    dataAtual = new Date().toLocaleDateString('pt-BR');
-    realizarBusca();
-});
+function iniciarBusca() {
+    const termo = document.getElementById('searchTerm').value;
+    if (!termo.trim()) return;
+    
+    chrome.storage.local.set({
+        acaoPendente: {
+            tipo: 'nova_busca',
+            termo: termo
+        }
+    }, () => {
+        window.location.href = 'resultados.html';
+    });
+}
+
+document.getElementById('searchBtn').addEventListener('click', iniciarBusca);
 
 document.getElementById('searchTerm').addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
-        googleLimite = 5;
-        linkedinLimite = 5;
-        instagramLimite = 5;
-        termoAtual = document.getElementById('searchTerm').value;
-        dataAtual = new Date().toLocaleDateString('pt-BR');
-        realizarBusca();
+        iniciarBusca();
     }
-});
-
-document.getElementById('btnCSV').addEventListener('click', () => {
-    if (leadsColetados.length > 0) {
-        downloadCSV(leadsColetados, termoAtual, dataAtual);
-    }
-});
-
-document.getElementById('btnPDF').addEventListener('click', () => {
-    if (leadsColetados.length > 0) {
-        downloadPDF(leadsColetados, termoAtual, dataAtual);
-    }
-});
-
-document.getElementById('btnBack').addEventListener('click', () => {
-    UI.mudarTela('home');
-    document.getElementById('resultsLista').innerHTML = "";
-    document.getElementById('status').innerText = "";
-    leadsColetados = [];
-    googleLimite = 5;
-    linkedinLimite = 5;
-    instagramLimite = 5;
-    renderizarHistorico();
 });
