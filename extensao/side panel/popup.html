@@ -47,13 +47,11 @@
         </section>
 
         <div id="manageSitesArea">
-            <div class="manage-header">
-                <button id="btnBackManage" class="icon-back" title="Voltar">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                        <use href="#icon-arrow-left"></use>
-                    </svg>
-                </button>
-            </div>
+            <button id="btnBackManage" class="icon-back" title="Voltar">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <use href="#icon-arrow-left"></use>
+                </svg>
+            </button>
             <h2>Configuração de busca</h2>
 
             <div class="platform-card">
@@ -65,10 +63,12 @@
                     </span>
                     <span class="platform-name">Google</span>
                 </div>
-                <label class="switch">
-                    <input type="checkbox" id="toggleGoogle">
-                    <span class="slider round"></span>
-                </label>
+                <div class="platform-actions">
+                    <label class="switch">
+                        <input type="checkbox" id="toggleGoogle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
             </div>
 
             <div class="platform-card">
@@ -80,10 +80,17 @@
                     </span>
                     <span class="platform-name">LinkedIn</span>
                 </div>
-                <label class="switch">
-                    <input type="checkbox" id="toggleLinkedin">
-                    <span class="slider round"></span>
-                </label>
+                <div class="platform-actions">
+                    <button class="btn-login-info" data-platform="linkedin" title="Informação sobre login">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <use href="#icon-alert-circle"></use>
+                        </svg>
+                    </button>
+                    <label class="switch">
+                        <input type="checkbox" id="toggleLinkedin">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
             </div>
 
             <div class="platform-card">
@@ -95,10 +102,17 @@
                     </span>
                     <span class="platform-name">Instagram</span>
                 </div>
-                <label class="switch">
-                    <input type="checkbox" id="toggleInstagram">
-                    <span class="slider round"></span>
-                </label>
+                <div class="platform-actions">
+                    <button class="btn-login-info" data-platform="instagram" title="Informação sobre login">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <use href="#icon-alert-circle"></use>
+                        </svg>
+                    </button>
+                    <label class="switch">
+                        <input type="checkbox" id="toggleInstagram">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>

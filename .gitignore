@@ -1,8 +1,0 @@
-# Ignorar dependências e pacotes baixados do backend
-backend/node_modules/
-
-# Arquivos de log e sistema
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.DS_Store

@@ -4,13 +4,10 @@ export function downloadCSV(lista_de_leads, termo = "Busca", data = "") {
     const leadsGoogle = lista_de_leads.filter(item => item.origem && item.origem.includes('google'));
     const leadsLinkedin = lista_de_leads.filter(item => item.origem && item.origem.includes('linkedin'));
     const leadsInstagram = lista_de_leads.filter(item => item.origem && item.origem.includes('instagram'));
-
-
     const sep = ";";
-
     let csv = `Busca: ${termo}${sep}${sep}\n`;
-    csv += `Data: ${data} | Leads coletados: ${lista_de_leads.length}${sep}${sep}\n\n`;
 
+    csv += `Data: ${data} | Leads coletados: ${lista_de_leads.length}${sep}${sep}\n\n`;
 
     const criarSecao = (titulo, colunas) => {
         let bloco = "";
@@ -122,7 +119,7 @@ export function downloadPDF(lista_de_leads, termo = "Busca", data = "") {
         text(C.muted);
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text(`Extração Inteligente  ·  Setor: ${termo}`, 14, 26);
+        doc.text(`Extração Inteligente  ·  Busca: ${termo}`, 14, 26);
 
         // ── Traço separador visível ──
         doc.setDrawColor(55, 65, 90);   // azul-acinzentado sólido, visível no fundo escuro
@@ -266,29 +263,24 @@ export function downloadPDF(lista_de_leads, termo = "Busca", data = "") {
     const leadsLinkedin = lista_de_leads.filter(i => i.origem && i.origem.includes('linkedin'));
     const leadsInstagram = lista_de_leads.filter(i => i.origem && i.origem.includes('instagram'));
 
-    // Página 1
+    // Monta as seções dinamicamente 
+    const secoes = [];
+    if (leadsGoogle.length > 0) secoes.push({ leads: leadsGoogle, label: "LEADS IDENTIFICADOS — GOOGLE" });
+    if (leadsLinkedin.length > 0) secoes.push({ leads: leadsLinkedin, label: "LEADS IDENTIFICADOS — LINKEDIN" });
+    if (leadsInstagram.length > 0) secoes.push({ leads: leadsInstagram, label: "LEADS IDENTIFICADOS — INSTAGRAM" });
+
+    // Página 1 — header já desenhado
     desenharHeader();
 
-    if (leadsGoogle.length > 0) {
-        desenharSecaoLabel("LEADS IDENTIFICADOS — GOOGLE", 68);
-        renderizarCards(leadsGoogle, "LEADS IDENTIFICADOS — GOOGLE");
-    }
-
-    if (leadsLinkedin.length > 0) {
-        desenharFooter();
-        doc.addPage();
-        desenharHeader();
-        desenharSecaoLabel("LEADS IDENTIFICADOS — LINKEDIN", 68);
-        renderizarCards(leadsLinkedin, "LEADS IDENTIFICADOS — LINKEDIN");
-    }
-
-    if (leadsInstagram.length > 0) {
-        desenharFooter();
-        doc.addPage();
-        desenharHeader();
-        desenharSecaoLabel("LEADS IDENTIFICADOS — INSTAGRAM", 68);
-        renderizarCards(leadsInstagram, "LEADS IDENTIFICADOS — INSTAGRAM");
-    }
+    secoes.forEach((secao, index) => {
+        if (index > 0) {
+            desenharFooter();
+            doc.addPage();
+            desenharHeader();
+        }
+        desenharSecaoLabel(secao.label, 68);
+        renderizarCards(secao.leads, secao.label);
+    });
 
     desenharFooter();
     doc.save(`leads_${termo.replace(/\s+/g, '_')}.pdf`);

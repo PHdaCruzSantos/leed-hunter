@@ -5,6 +5,17 @@ const SELETORES = {
 
 function extrairDadosBusca() {
 
+    // Detecta redirecionamento para página de login
+    const urlAtual = window.location.href;
+    if (urlAtual.includes('/login') || urlAtual.includes('/authwall') || urlAtual.includes('/checkpoint')) {
+        chrome.runtime.sendMessage({
+            type: "LOGIN_NECESSARIO",
+            plataforma: "LinkedIn",
+            url: "https://www.linkedin.com/login"
+        });
+        return;
+    }
+
     const linksPerfil = document.querySelectorAll(SELETORES.link_perfil);
     const listaResultados = [];
     const perfisProcessados = new Set();

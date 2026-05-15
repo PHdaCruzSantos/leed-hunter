@@ -349,12 +349,74 @@ button:hover {
 
 .export-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
+    gap: 10px;
     margin-top: 15px;
     margin-bottom: 5px;
     width: 100%;
+}
+
+.export-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.export-checkboxes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+}
+
+.export-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    color: #aaaaaa;
+    font-size: 13px;
+    transition: color 0.2s ease;
+}
+
+.export-checkbox:hover {
+    color: #ffffff;
+}
+
+.export-checkbox input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 1.5px solid #555555;
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.export-checkbox input[type="checkbox"]:checked {
+    background-color: rgba(37, 99, 235, 0.3);
+    border-color: #2563EB;
+}
+
+.export-checkbox input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: -1px;
+    left: 2px;
+    font-size: 11px;
+    color: #2563EB;
+    font-weight: bold;
 }
 
 .btn-export {
@@ -602,47 +664,46 @@ button:hover {
     width: 100%;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
-}
-
-.manage-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    margin-bottom: 25px;
-}
-
-.manage-header h2 {
-    margin: 0;
-    font-size: 18px;
+    padding-top: 35px;
 }
 
 #btnBackManage {
-    position: static;
-    margin-right: 15px;
-    margin-top: 0;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    margin: 0;
     width: auto;
 }
 
 .platform-card {
     display: flex;
-    justify-content: center;
-    gap: 40px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
     align-items: center;
-    width: 80%;
-    padding: 15px;
+    width: 90%;
+    padding: 12px 18px;
     background: transparent;
     border: 1px solid #555555;
-    border-radius: 24px;
-    margin-bottom: 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
     box-sizing: border-box;
+}
+
+.platform-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
 .platform-info {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .platform-icon {
@@ -662,8 +723,9 @@ button:hover {
 .switch {
     position: relative;
     display: inline-block;
-    width: 44px;
-    height: 24px;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
 }
 
 .switch input {
@@ -686,8 +748,8 @@ button:hover {
 .slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
+    height: 14px;
+    width: 14px;
     left: 3px;
     bottom: 3px;
     background-color: white;
@@ -699,7 +761,7 @@ input:checked+.slider {
 }
 
 input:checked+.slider:before {
-    transform: translateX(20px);
+    transform: translateX(16px);
 }
 
 .slider.round {
@@ -708,4 +770,113 @@ input:checked+.slider:before {
 
 .slider.round:before {
     border-radius: 50%;
+}
+
+/* --- Botão de alerta de login --- */
+.btn-login-info {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    color: #2563EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.btn-login-info:hover {
+    color: #60a5fa;
+    transform: scale(1.15);
+}
+
+/* Tooltip que aparece ao clicar */
+.login-tooltip {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1a1a2e;
+    border: 1px solid #2563EB;
+    border-radius: 12px;
+    padding: 18px 22px;
+    color: #e0e0e0;
+    font-size: 13px;
+    line-height: 1.5;
+    z-index: 1000;
+    max-width: 280px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    animation: fadeInTooltip 0.2s ease;
+}
+
+.login-tooltip-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+@keyframes fadeInTooltip {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.login-tooltip strong {
+    color: #60a5fa;
+}
+
+.login-tooltip .btn-close-tooltip {
+    margin-top: 12px;
+    background: rgba(37, 99, 235, 0.15);
+    border: 1px solid #2563EB;
+    color: #60a5fa;
+    padding: 6px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    width: auto !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+
+.login-tooltip .btn-close-tooltip:hover {
+    background: rgba(37, 99, 235, 0.3);
+}
+
+/* Notificação de erro de login na tela de resultados */
+.login-error-bar {
+    background: rgba(255, 82, 82, 0.1);
+    border: 1px solid #ff5252;
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #ff8a8a;
+    font-size: 13px;
+    line-height: 1.4;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.login-error-bar a {
+    color: #60a5fa;
+    text-decoration: underline;
+    font-weight: bold;
 }

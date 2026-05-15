@@ -1,5 +1,5 @@
 import { downloadCSV, downloadPDF } from '../scripts/export.js';
-import { realizarBusca } from '../scripts/gestaoDeBusca.js';
+import { realizarBusca, isBuscaEmAndamento } from '../scripts/gestaoDeBusca.js';
 
 let leadsColetados = [];
 let termoAtual = "";
@@ -274,18 +274,35 @@ function adicionarBotoesDePaginacao(limiteAtual, totalDeLeads, containerDeBotoes
     }
 }
 
+function getLeadsFiltrados() {
+    const incluirGoogle = document.getElementById('chkGoogle').checked;
+    const incluirLinkedin = document.getElementById('chkLinkedin').checked;
+    const incluirInstagram = document.getElementById('chkInstagram').checked;
+
+    return leadsColetados.filter(item => {
+        if (!item.origem) return false;
+        if (item.origem.includes('google') && incluirGoogle) return true;
+        if (item.origem.includes('linkedin') && incluirLinkedin) return true;
+        if (item.origem.includes('instagram') && incluirInstagram) return true;
+        return false;
+    });
+}
+
 document.getElementById('btnCSV').addEventListener('click', () => {
-    if (leadsColetados.length > 0) {
-        downloadCSV(leadsColetados, termoAtual, dataAtual);
+    const leadsFiltrados = getLeadsFiltrados();
+    if (leadsFiltrados.length > 0) {
+        downloadCSV(leadsFiltrados, termoAtual, dataAtual);
     }
 });
 
 document.getElementById('btnPDF').addEventListener('click', () => {
-    if (leadsColetados.length > 0) {
-        downloadPDF(leadsColetados, termoAtual, dataAtual);
+    const leadsFiltrados = getLeadsFiltrados();
+    if (leadsFiltrados.length > 0) {
+        downloadPDF(leadsFiltrados, termoAtual, dataAtual);
     }
 });
 
 document.getElementById('btnBack').addEventListener('click', () => {
+    if (isBuscaEmAndamento()) return;
     window.location.href = 'popup.html';
 });

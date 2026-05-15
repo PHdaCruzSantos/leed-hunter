@@ -18,9 +18,27 @@
         <div id="status" class="status"></div>
 
         <div id="exportArea" class="export-container" style="display: none;">
-            <span style="color: #EDEAE0; font-size: 14px; font-weight: bold;">Exportar leads:</span>
-            <button id="btnCSV" class="btn-export csv">CSV</button>
-            <button id="btnPDF" class="btn-export pdf">PDF</button>
+            <div class="export-header">
+                <span style="color: #EDEAE0; font-size: 14px; font-weight: bold;">Exportar dados:</span>
+                <div class="export-buttons">
+                    <button id="btnCSV" class="btn-export csv">CSV</button>
+                    <button id="btnPDF" class="btn-export pdf">PDF</button>
+                </div>
+            </div>
+            <div class="export-checkboxes">
+                <label class="export-checkbox">
+                    <input type="checkbox" id="chkGoogle" checked>
+                    <span>Google</span>
+                </label>
+                <label class="export-checkbox">
+                    <input type="checkbox" id="chkLinkedin" checked>
+                    <span>LinkedIn</span>
+                </label>
+                <label class="export-checkbox">
+                    <input type="checkbox" id="chkInstagram" checked>
+                    <span>Instagram</span>
+                </label>
+            </div>
         </div>
 
         <div id="queryInfo" style="margin-top: 15px; margin-bottom: 15px; color: #EDEAE0; font-size: 16px;"></div>

@@ -49,6 +49,42 @@ document.getElementById('toggleGoogle').addEventListener('change', salvarPrefere
 document.getElementById('toggleLinkedin').addEventListener('change', salvarPreferenciasDeBusca);
 document.getElementById('toggleInstagram').addEventListener('change', salvarPreferenciasDeBusca);
 
+// Alerta de login para LinkedIn e Instagram
+document.querySelectorAll('.btn-login-info').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const plataforma = btn.dataset.platform;
+        const nomes = { linkedin: 'LinkedIn', instagram: 'Instagram' };
+        const urls = {
+            linkedin: 'https://www.linkedin.com/login',
+            instagram: 'https://www.instagram.com/accounts/login/'
+        };
+
+        // Remove tooltip anterior se existir
+        document.querySelectorAll('.login-tooltip, .login-tooltip-overlay').forEach(el => el.remove());
+
+        const overlay = document.createElement('div');
+        overlay.className = 'login-tooltip-overlay';
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'login-tooltip';
+        tooltip.innerHTML = `
+            <p>Para coletar leads do <strong>${nomes[plataforma]}</strong>, é necessário efetuar o login antes de iniciar a busca.</p>
+            <button class="btn-close-tooltip">Entendi</button>
+        `;
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(tooltip);
+
+        const fechar = () => {
+            overlay.remove();
+            tooltip.remove();
+        };
+
+        tooltip.querySelector('.btn-close-tooltip').addEventListener('click', fechar);
+        overlay.addEventListener('click', fechar);
+    });
+});
+
 function renderizarHistorico() {
     chrome.storage.local.get({ historico: [] }, (result) => {
         const container = document.getElementById('historicoCard');
@@ -58,7 +94,7 @@ function renderizarHistorico() {
             return;
         }
 
-        
+
         container.innerHTML = '';
         const ul = document.createElement('ul');
         ul.style.listStyle = 'none';
@@ -127,7 +163,7 @@ function renderizarHistorico() {
 function iniciarBusca() {
     const termo = document.getElementById('searchTerm').value;
     if (!termo.trim()) return;
-    
+
     chrome.storage.local.set({
         acaoPendente: {
             tipo: 'nova_busca',
