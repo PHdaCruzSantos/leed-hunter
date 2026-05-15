@@ -46,6 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
+    const mensagem = "exibir detalhes dos leads";
+    chrome.runtime.sendMessage({
+        action: "DEBUG_LOG",
+        dados: mensagem
+    });
     if (isHistorico) {
         leadsColetados = novosLeads;
     } else {
@@ -84,8 +89,8 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
             card.className = 'lead-card';
             card.innerHTML = `
             <strong>${item.nome}</strong>
-            <span>📱 ${item.telefone}</span>
-            <span>🔗 ${item.site}</span>
+            <span> ${item.telefone}</span>
+            <span> ${item.site}</span>
             `;
             googleContainer.appendChild(card);
         });
@@ -140,8 +145,8 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
             card.className = 'lead-card';
             card.innerHTML = `
             <strong>${item.nome}</strong>
-            <span>💼 ${item.profissao}</span>
-            <span>🔗 ${item.site}</span>
+            <span> ${item.profissao}</span>
+            <span> ${item.site}</span>
             `;
             linkedinContainer.appendChild(card);
         });
@@ -196,7 +201,7 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
             card.className = 'lead-card';
             card.innerHTML = `
             <strong>${item.nome}</strong>
-            <span>🔗 ${item.site}</span>
+            <span> ${item.site}</span>
             `;
             instagramContainer.appendChild(card);
         });
