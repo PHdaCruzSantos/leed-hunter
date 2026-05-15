@@ -44,6 +44,6 @@ async function extrairDadosBusca() {
     return leadsColetados;
 }
 
-const delayHumano = Math.floor(Math.random() * 2000) + 1500;
+const delayHumano = Math.floor(Math.random() * 6000) + 1500;
 
 setTimeout(extrairDadosBusca, delayHumano);
