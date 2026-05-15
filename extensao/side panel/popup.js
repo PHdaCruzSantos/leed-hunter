@@ -58,6 +58,7 @@ function renderizarHistorico() {
             return;
         }
 
+        
         container.innerHTML = '';
         const ul = document.createElement('ul');
         ul.style.listStyle = 'none';

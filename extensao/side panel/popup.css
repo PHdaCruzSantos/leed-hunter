@@ -5,7 +5,8 @@ body {
     flex-direction: column;
     font-family: 'Segoe UI', sans-serif;
     padding: 25px;
-    background-color: #212121; /* preto n mt preto */
+    background-color: #212121;
+    /* preto n mt preto */
     color: #e0e0e0;
     margin: 0;
     box-sizing: border-box;
@@ -23,8 +24,9 @@ body {
 }
 
 h2 {
-    color: #EDEAE0; /* branco n mt branco */
-    margin-bottom: 25px; 
+    color: #EDEAE0;
+    /* branco n mt branco */
+    margin-bottom: 25px;
     font-size: 22px;
     letter-spacing: 1px;
 }
@@ -42,15 +44,35 @@ h2 {
     margin-left: 2px;
 }
 
-.input-wrapper { /* barra de pesquisa */
+.search-row {
     display: flex;
     align-items: center;
-    border-bottom: 2px solid #555555;
-    transition: border-color 0.3s;
+    gap: 8px;
+    width: 100%;
 }
 
-.input-wrapper:focus-within {
-    border-color: #ffffff;
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    padding-right: 0;
+    border-bottom: none;
+}
+
+.input-wrapper input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    border-bottom: 2px solid #555555;
+    background: transparent;
+    padding: 8px 5px;
+    color: white;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-bottom-color: #ffffff;
 }
 
 input {
@@ -90,6 +112,22 @@ input::placeholder {
     border: none !important;
 }
 
+
+#searchTerm {
+    flex: 1;
+    background: transparent;
+    /* border: none; */
+    /*outline: none;*/
+    color: #ffffff;
+    padding: 10px 5px;
+}
+
+#searchTerm::placeholder {
+    font-size: 18px;
+    /*opacity: 0.7; /* Opcional: deixa o texto levemente mais transparente */
+}
+
+
 button {
     width: 100%;
     padding: 12px;
@@ -113,42 +151,84 @@ button:hover {
 
 .status {
     margin-top: 15px;
-    font-size: 12px;
+    font-size: 16px;
     color: #aaaaaa;
     font-weight: bold;
 }
 
 .results-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que os cards quebrem para a linha de baixo */
+    gap: 15px;
     width: 100%;
     margin-top: 15px;
 }
 
-.lead-card {
-    background: transparent;
-    color: #dddddd;
-    padding: 15px;
-    margin-bottom: 8px;
-    border-radius: 16px;
-    border: 1px solid #555555; /* aqui */
+
+/* Container que agrupa os cards das plataformas */
+.results-grid {
     display: flex;
-    flex-direction: column;
-    font-size: 15px;
-    box-shadow: none;
-    width: 100%;
-    box-sizing: border-box;
+    flex-wrap: wrap;
+    /* Permite que os cards quebrem para a linha de baixo */
+    gap: 15px;
+    margin-top: 10px;
 }
 
+/* Estilo individual de cada card (Google, LinkedIn, etc) */
+.platform-card {
+    flex: 1 1 calc(33.333% - 15px);
+    /* Tenta ocupar 1/3 da largura */
+    min-width: 250px;
+    /* Não deixa o card ficar pequeno demais */
+    background: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estado Minimizado: o card ocupa menos espaço */
+.platform-card.minimized {
+    flex: 0 1 200px;
+    max-height: 50px;
+    /* Altura apenas para o cabeçalho */
+}
+
+.card-header {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #444;
+}
+
+.card-body {
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Esconde o corpo quando minimizado */
+.platform-card.minimized .card-body {
+    display: none;
+}
+
+
+/* TESTE: Bordas do grupo desativadas para o novo visual */
 .platform-group {
-    /* TESTE: Bordas do grupo desativadas para o novo visual */
-    border: 2px solid transparent; 
+    border: 2px solid transparent;
     border-radius: 20px;
     padding: 15px;
     padding-top: 5px;
     margin-bottom: 25px;
-    background: rgba(255, 255, 255, 0.02); 
+    background: rgba(255, 255, 255, 0.02);
     width: 100%;
     box-sizing: border-box;
 }
+
 
 /* Centraliza a div que contém o h3 */
 .platform-group>div:first-child {
@@ -156,7 +236,6 @@ button:hover {
     justify-content: center;
     width: 100%;
 }
-
 
 .platform-group h3 {
     margin: 10px auto 20px auto !important;
@@ -170,24 +249,75 @@ button:hover {
     width: fit-content;
 }
 
-
-
 /* estilo de borda que circula o card todo*/
 .platform-group.google-group {
-    box-shadow: 0px 0px 15px #34A853;
-    border-color: #34A853; 
+    background-color: #111111;
 }
+
 .platform-group.linkedin-group {
-    box-shadow: 0px 0px 15px #0077b5;
-    border-color: #0077b5;
+    background-color: #111111;
 }
+
 .platform-group.instagram-group {
-    box-shadow: 0px 0px 15px #E1306C;
-    border-color: #E1306C;
+    background-color: #111111;
 }
 
+/* --- Botão de minimizar/maximizar --- */
+.btn-minimize-card {
+    width: 28px !important;
+    height: 28px;
+    padding: 0 !important;
+    margin: 0;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #aaaaaa;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+}
 
+.btn-minimize-card:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    transform: scale(1.15);
+}
 
+.btn-minimize-card svg {
+    transition: transform 0.3s ease;
+}
+
+/* Rotaciona o chevron quando minimizado */
+.platform-group.minimized .btn-minimize-card svg {
+    transform: rotate(-90deg);
+}
+
+/* --- Estado minimizado do card --- */
+.platform-group .lead-card,
+.platform-group>div:last-child {
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+    overflow: hidden;
+}
+
+.platform-group.minimized .lead-card,
+.platform-group.minimized>div:not(:first-child) {
+    display: none;
+}
+
+.platform-group.minimized {
+    padding-bottom: 5px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.platform-group.minimized h3 {
+    margin-bottom: 5px !important;
+}
 
 .lead-card strong {
     color: #ffffff;
@@ -199,6 +329,22 @@ button:hover {
 .lead-card a {
     color: inherit;
     text-decoration: underline;
+}
+
+.lead-card {
+    background: #313131;
+    color: #dddddd;
+    padding: 15px;
+    margin-bottom: 8px;
+    border-radius: 16px;
+    border: 1px solid #555555;
+    /* aqui */
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+    box-shadow: none;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .export-container {
@@ -380,26 +526,71 @@ button:hover {
     background: #768996;
 }
 
-/* --- Gerenciar Sites --- */
+/* --- Configuração de busca --- */
 .btn-secondary {
+    margin-left: 5px;
     background-color: transparent;
-    border: 1px solid #555555;
+    /* Remove a borda existente */
+    border: none !important;
+    outline: none;
     color: #aaaaaa;
+    /* Garante que o botão seja circular para o efeito de hover */
+    border-radius: 50%;
+    padding: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
 }
 
+/* efeito de quando o mouse passa por cima do icone */
 .btn-secondary:hover {
     background-color: rgba(255, 255, 255, 0.06);
-    border-color: #888888;
+    /* Garante que nenhuma borda apareça no hover */
+    border: none !important;
     color: #ffffff;
 }
 
+/* Remove a borda de foco (comum em navegadores ao clicar) */
+.btn-secondary:focus,
+.btn-secondary:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.search-icon,
+.btn-secondary {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    margin: 0;
+    line-height: 0;
+    box-shadow: none !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.search-icon svg,
+.btn-secondary svg {
+    display: block;
+}
+
+.btn-secondary {
+    /* Mantém o círculo de hover sem afetar o alinhamento das linhas */
+    border-radius: 50%;
+}
+
+
+
 #btnManageSites {
     width: max-content;
-    padding-left: 30px;
-    padding-right: 30px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-left: 30px;
+    margin-right: 0;
+    margin-top: 0;
     display: flex;
     align-items: center;
     justify-content: center;

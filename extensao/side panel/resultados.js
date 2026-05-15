@@ -2,18 +2,20 @@ import { downloadCSV, downloadPDF } from '../scripts/export.js';
 import { realizarBusca } from '../scripts/gestaoDeBusca.js';
 
 let leadsColetados = [];
+let termoAtual = "";
+let dataAtual = "";
 let googleLimite = 5;
 let linkedinLimite = 5;
 let instagramLimite = 5;
-let termoAtual = "";
-let dataAtual = "";
+
+// Persiste estado minimizado entre re-renders
+const minimizedState = { google: false, linkedin: false, instagram: false };
 
 export function getLeadsColetados() {
     return leadsColetados;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Carregar os ícones SVG
     fetch('./src/icons.html')
         .then(response => response.text())
         .then(html => {
@@ -62,12 +64,18 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
     if (leadsGoogle.length > 0) {
         const googleContainer = document.createElement('div');
         googleContainer.className = 'platform-group google-group';
+        if (minimizedState.google) googleContainer.classList.add('minimized');
 
         const secaoGoogle = document.createElement('div');
         secaoGoogle.innerHTML = `<h3 style="color: #EDEAE0; margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 6px;">
             <svg width="16" height="16" fill="currentColor">
                 <use href="#icon-google"></use>
             </svg>Google (${leadsGoogle.length} leads)
+            <button class="btn-minimize-card" title="${minimizedState.google ? 'Maximizar' : 'Minimizar'}">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <use href="#icon-chevron-down"></use>
+                </svg>
+            </button>
         </h3>`;
         googleContainer.appendChild(secaoGoogle);
 
@@ -93,7 +101,17 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
         if (googleBtnContainer.childNodes.length > 0) {
             googleContainer.appendChild(googleBtnContainer);
         }
-        
+
+        const btnGoogle = googleContainer.querySelector('.btn-minimize-card');
+        btnGoogle.onclick = () => {
+            googleContainer.classList.toggle('minimized');
+            minimizedState.google = googleContainer.classList.contains('minimized');
+            btnGoogle.title = minimizedState.google ? 'Maximizar' : 'Minimizar';
+            googleBtnContainer.style.display = minimizedState.google ? 'none' : 'flex';
+        };
+
+        if (minimizedState.google) googleBtnContainer.style.display = 'none';
+
         resultsLista.appendChild(googleContainer);
     }
 
@@ -101,6 +119,7 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
     if (leadsLinkedIn.length > 0) {
         const linkedinContainer = document.createElement('div');
         linkedinContainer.className = 'platform-group linkedin-group';
+        if (minimizedState.linkedin) linkedinContainer.classList.add('minimized');
 
         const sectionLinkedIn = document.createElement('div');
         const margemTopo = leadsGoogle.length > 0 ? "20px" : "10px";
@@ -108,6 +127,11 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
             <svg width="16" height="16" fill="currentColor">
                 <use href="#icon-linkedin"></use>
             </svg>LinkedIn (${leadsLinkedIn.length} leads)
+            <button class="btn-minimize-card" title="${minimizedState.linkedin ? 'Maximizar' : 'Minimizar'}">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <use href="#icon-chevron-down"></use>
+                </svg>
+            </button>
         </h3>`;
         linkedinContainer.appendChild(sectionLinkedIn);
 
@@ -133,7 +157,17 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
         if (linkedinBtnContainer.childNodes.length > 0) {
             linkedinContainer.appendChild(linkedinBtnContainer);
         }
-        
+
+        const btnLinkedin = linkedinContainer.querySelector('.btn-minimize-card');
+        btnLinkedin.onclick = () => {
+            linkedinContainer.classList.toggle('minimized');
+            minimizedState.linkedin = linkedinContainer.classList.contains('minimized');
+            btnLinkedin.title = minimizedState.linkedin ? 'Maximizar' : 'Minimizar';
+            linkedinBtnContainer.style.display = minimizedState.linkedin ? 'none' : 'flex';
+        };
+
+        if (minimizedState.linkedin) linkedinBtnContainer.style.display = 'none';
+
         resultsLista.appendChild(linkedinContainer);
     }
 
@@ -141,6 +175,7 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
     if (leadsInstagram.length > 0) {
         const instagramContainer = document.createElement('div');
         instagramContainer.className = 'platform-group instagram-group';
+        if (minimizedState.instagram) instagramContainer.classList.add('minimized');
 
         const sectionInstagram = document.createElement('div');
         const margemTopo = (leadsGoogle.length > 0 || leadsLinkedIn.length > 0) ? "20px" : "10px";
@@ -148,6 +183,11 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
             <svg width="16" height="16" fill="currentColor">
                 <use href="#icon-instagram"></use>
             </svg>Instagram (${leadsInstagram.length} leads)
+            <button class="btn-minimize-card" title="${minimizedState.instagram ? 'Maximizar' : 'Minimizar'}">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <use href="#icon-chevron-down"></use>
+                </svg>
+            </button>
         </h3>`;
         instagramContainer.appendChild(sectionInstagram);
 
@@ -172,7 +212,17 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
         if (instagramBtnContainer.childNodes.length > 0) {
             instagramContainer.appendChild(instagramBtnContainer);
         }
-        
+
+        const btnInstagram = instagramContainer.querySelector('.btn-minimize-card');
+        btnInstagram.onclick = () => {
+            instagramContainer.classList.toggle('minimized');
+            minimizedState.instagram = instagramContainer.classList.contains('minimized');
+            btnInstagram.title = minimizedState.instagram ? 'Maximizar' : 'Minimizar';
+            instagramBtnContainer.style.display = minimizedState.instagram ? 'none' : 'flex';
+        };
+
+        if (minimizedState.instagram) instagramBtnContainer.style.display = 'none';
+
         resultsLista.appendChild(instagramContainer);
     }
 

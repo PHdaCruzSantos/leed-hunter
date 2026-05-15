@@ -109,10 +109,10 @@ function criaHistorico(consulta, leadsColetados) {
 
         const novoHistorico = [novaEntrada, ...result.historico].slice(0, 20);
         //console.log("Novo hisotirco: ", novoHistorico);
-        chrome.runtime.sendMessage({
-            action: "DEBUG_LOG",
-            dados: novoHistorico
-        });
+        //chrome.runtime.sendMessage({
+        //  action: "DEBUG_LOG",
+        //dados: novoHistorico
+        //});
 
         chrome.storage.local.set({
             historico: novoHistorico,
