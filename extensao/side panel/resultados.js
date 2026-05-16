@@ -330,19 +330,20 @@ document.getElementById('btnBack').addEventListener('click', () => {
 });
 
 function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast-container';
-    toast.innerHTML = `
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-            <use href="#icon-alert-circle"></use>
-        </svg>
-        <span>${message}</span>
-    `;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.5s ease';
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
+    Toastify({
+        text: message,
+        duration: 4000,
+        gravity: "top",
+        position: "right",
+        style: {
+            background: "#1a1d2e",
+            color: "#EDEAE0",
+            border: "1px solid #2563eb",
+            borderRadius: "12px",
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: "16px",
+            padding: "15px 25px",
+            boxShadow: "0 10px 20px rgba(0,0,0,0.4)"
+        }
+    }).showToast();
 }

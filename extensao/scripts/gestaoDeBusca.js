@@ -32,12 +32,72 @@ function detectarLoginPelaUrl(url) {
 }
 
 function dispararToastLogin(plataforma, url) {
-    const mensagem = "chegou no disparar toast";
-    chrome.runtime.sendMessage({
-        action: "DEBUG_LOG",
-        dados: mensagem
-    });
     if (loginNecessarioAtivo) return;
+
+    // Tratativa específica para o Instagram (Segurança e baixa detecção)
+    if (plataforma === "Instagram") {
+        loginNecessarioAtivo = true;
+
+        // Finaliza a busca atual imediatamente para evitar suspeitas do Instagram
+        if (scraperWindowId) {
+            chrome.windows.remove(scraperWindowId).catch(() => { });
+            scraperWindowId = null;
+        }
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+            searchTimeout = null;
+        }
+        setBuscaUI(false);
+
+        const toastContent = document.createElement("div");
+        toastContent.style.display = "flex";
+        toastContent.style.flexDirection = "column";
+        toastContent.style.gap = "10px";
+        toastContent.innerHTML = `
+            <div style="font-family: 'Outfit', sans-serif; font-size: 14px;">
+                <strong>Instagram exige login:</strong><br>
+                Para buscar leads no Instagram, você precisa estar logado na rede social em seu navegador.
+            </div>
+            <button id="btnEntendiInsta" style="
+                background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+                color: white;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-family: 'Outfit', sans-serif;
+                font-weight: 600;
+                transition: transform 0.1s;
+                margin-top: 5px;
+            ">Entendi</button>
+        `;
+
+        const toast = Toastify({
+            node: toastContent,
+            duration: -1,
+            close: true,
+            gravity: "top",
+            position: "right",
+            stopOnFocus: true,
+            style: {
+                background: "#1a1d2e",
+                color: "#EDEAE0",
+                border: "1px solid #2563eb",
+                borderRadius: "12px",
+                padding: "15px 25px",
+                boxShadow: "0 10px 20px rgba(0,0,0,0.4)"
+            }
+        }).showToast();
+
+        const btnEntendi = toastContent.querySelector("#btnEntendiInsta");
+        btnEntendi.onmousedown = () => btnEntendi.style.transform = "scale(0.95)";
+        btnEntendi.onmouseup = () => btnEntendi.style.transform = "scale(1)";
+        btnEntendi.onclick = () => {
+            toast.hideToast();
+            window.location.href = "popup.html";
+        };
+        return;
+    }
 
     const statusDiv = document.getElementById('status');
     if (statusDiv) {
@@ -75,11 +135,12 @@ function dispararToastLogin(plataforma, url) {
         position: "right",
         stopOnFocus: true,
         style: {
-            background: "linear-gradient(to right, #1a1a1a, #2d2d2d)",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
-            borderRadius: "10px",
-            border: "1px solid #444",
-            padding: "15px"
+            background: "#1a1d2e",
+            color: "#EDEAE0",
+            border: "1px solid #2563eb",
+            borderRadius: "12px",
+            padding: "15px 25px",
+            boxShadow: "0 10px 20px rgba(0,0,0,0.4)"
         }
     }).showToast();
 
@@ -138,10 +199,22 @@ export function realizarBusca(consulta) {
             }
 
             if (urlsParaBuscar.length === 0) {
-                statusDiv.style.color = "#ff6b6b";
-                statusDiv.innerText = "Nenhuma plataforma selecionada para busca!";
-                const queryInfoDiv = document.getElementById('queryInfo');
-                if (queryInfoDiv) queryInfoDiv.style.display = 'none';
+                Toastify({
+                    text: "Por favor, selecione ao menos uma plataforma nas configurações.",
+                    duration: 4000,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        background: "#1a1d2e",
+                        color: "#EDEAE0",
+                        border: "1px solid #2563eb",
+                        borderRadius: "12px",
+                        fontFamily: "'Outfit', sans-serif",
+                        fontSize: "16px",
+                        padding: "15px 25px",
+                        boxShadow: "0 10px 20px rgba(0,0,0,0.4)"
+                    }
+                }).showToast();
                 return;
             }
 
@@ -195,7 +268,7 @@ export function realizarBusca(consulta) {
 // Ouve as mensagens de qualquer scraper que terminar o trabalho (registrado apenas uma vez)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const statusDiv = document.getElementById('status');
-    
+
     // Log para depuração de comunicação
     chrome.runtime.sendMessage({
         action: "DEBUG_LOG",
@@ -205,7 +278,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!scraperWindowId || !sender?.tab || sender.tab.windowId !== scraperWindowId) {
         return;
     }
-    
+
     // Se recebeu algo do windowID correto, limpa o timeout pois houve atividade
     if (searchTimeout) {
         clearTimeout(searchTimeout);
@@ -216,16 +289,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 setBuscaUI(false);
                 scraperWindowId = null;
             }
-        }, 25000); 
+        }, 25000);
     }
 
     if (message.type === "DADOS_COLETADOS") {
+        // REDE DE SEGURANÇA: Verifica se a aba não foi para uma página de login antes de aceitar os dados
+        const plataformaUrl = detectarLoginPelaUrl(sender.tab.url);
+        if (plataformaUrl) {
+            dispararToastLogin(plataformaUrl, sender.tab.url);
+            return;
+        }
+
         chrome.tabs.remove(sender.tab.id).catch(() => { });
         chrome.runtime.sendMessage({
             action: "DEBUG_LOG",
             dados: `[GESTAO] Processando ${message.dados.length} leads de ${message.dados[0]?.origem || 'origem desconhecida'}`
         });
-        
+
         exibirDetalhesDosLeads(message.dados, false);
         const leadsColetados = getLeadsColetados();
         if (!loginNecessarioAtivo) {
@@ -233,12 +313,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         scriptsRecebidos++;
         if (scriptsRecebidos >= totalScripts) {
-            criaHistorico(consultaAtual, leadsColetados);
+            if (leadsColetados.length > 0) {
+                criaHistorico(consultaAtual, leadsColetados);
+            }
             setBuscaUI(false);
             scraperWindowId = null;
             if (searchTimeout) clearTimeout(searchTimeout);
         }
     } else if (message.type === "SEM_RESULTADOS") {
+        // REDE DE SEGURANÇA: Se não veio resultados, verifica se não estamos presos numa página de login/bloqueio
+        const plataformaUrl = detectarLoginPelaUrl(sender.tab.url);
+        if (plataformaUrl) {
+            dispararToastLogin(plataformaUrl, sender.tab.url);
+            return;
+        }
+
+        chrome.runtime.sendMessage({
+            action: "DEBUG_LOG",
+            dados: `[GESTAO] SEM_RESULTADOS na URL: ${sender.tab.url}`
+        });
+
         chrome.tabs.remove(sender.tab.id).catch(() => { });
         const leadsColetados = getLeadsColetados();
         if (!loginNecessarioAtivo && leadsColetados.length === 0) {
@@ -247,7 +341,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         scriptsRecebidos++;
         if (scriptsRecebidos >= totalScripts) {
-            criaHistorico(consultaAtual, leadsColetados);
+            if (leadsColetados.length > 0) {
+                criaHistorico(consultaAtual, leadsColetados);
+            }
             setBuscaUI(false);
             scraperWindowId = null;
             if (searchTimeout) clearTimeout(searchTimeout);

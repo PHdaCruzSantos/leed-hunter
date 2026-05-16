@@ -6,13 +6,14 @@ const SELETORES = {
 function detectarLoginLinkedIn() {
     const urlAtual = window.location.href;
 
-    // Verifica por redirecionamento de URL para páginas de login conhecidas
     if (
         urlAtual.includes('/login') ||
         urlAtual.includes('/authwall') ||
         urlAtual.includes('/checkpoint') ||
         urlAtual.includes('/uas/login') ||
-        urlAtual.includes('/signup')
+        urlAtual.includes('/signup') ||
+        urlAtual.includes('/onboarding') ||
+        (urlAtual.includes('/feed') && !urlAtual.includes('/search'))
     ) {
         return true;
     }
@@ -26,11 +27,14 @@ function detectarLoginLinkedIn() {
         '.authwall-join-form',
         '[data-test-id="login-form"]',
         '.join-page',
+        '.authwall',
+        '#public_profile_contextual-sign-in',
+        '.contextual-sign-in-modal',
+        '.guest-results-container'
     ];
 
     return seletoresDeLogin.some(seletor => !!document.querySelector(seletor));
 }
-
 
 function extrairDadosBusca() {
     if (detectarLoginLinkedIn()) {
@@ -85,6 +89,19 @@ function extrairDadosBusca() {
             origem: window.location.href
         });
     });
+
+    if (listaResultados.length === 0) {
+        // Fallback: Se não achou leads, verifica se há textos de login/signup na página
+        const bodyText = document.body.innerText.toLowerCase();
+        if (bodyText.includes('fazer login') || bodyText.includes('sign in') || bodyText.includes('cadastre-se') || bodyText.includes('join now')) {
+            chrome.runtime.sendMessage({
+                type: "LOGIN_NECESSARIO",
+                plataforma: "LinkedIn",
+                url: "https://www.linkedin.com/login"
+            });
+            return;
+        }
+    }
 
     enviarDadosColetados(listaResultados);
     return listaResultados;

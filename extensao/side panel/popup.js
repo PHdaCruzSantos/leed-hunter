@@ -165,13 +165,44 @@ function iniciarBusca() {
     const termo = document.getElementById('searchTerm').value;
     if (!termo.trim()) return;
 
-    chrome.storage.local.set({
-        acaoPendente: {
-            tipo: 'nova_busca',
-            termo: termo
+    // Valida se há pelo menos uma plataforma selecionada antes de mudar de tela
+    chrome.storage.local.get({
+        plataformasAtivas: {
+            google: true,
+            linkedin: true,
+            instagram: true
         }
-    }, () => {
-        window.location.href = 'resultados.html';
+    }, (result) => {
+        const ativas = result.plataformasAtivas;
+        if (!ativas.google && !ativas.linkedin && !ativas.instagram) {
+            Toastify({
+                text: "Por favor, selecione ao menos uma plataforma nas configurações.",
+                duration: 4000,
+                gravity: "top",
+                position: "right",
+                style: {
+                    background: "#1a1d2e",
+                    color: "#EDEAE0",
+                    border: "1px solid #2563eb",
+                    borderRadius: "12px",
+                    fontFamily: "'Outfit', sans-serif",
+                    fontSize: "16px",
+                    padding: "15px 25px",
+                    boxShadow: "0 10px 20px rgba(0,0,0,0.4)"
+                }
+            }).showToast();
+            return;
+        }
+
+        // Se houver plataformas, prossegue com a busca
+        chrome.storage.local.set({
+            acaoPendente: {
+                tipo: 'nova_busca',
+                termo: termo
+            }
+        }, () => {
+            window.location.href = 'resultados.html';
+        });
     });
 }
 
