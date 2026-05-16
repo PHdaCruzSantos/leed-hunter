@@ -3,12 +3,6 @@ const SELETORES = {
     profissao: 'div > p > span'
 };
 
-const mensagem = "[LINKEDIN]chegou no scraper linkedin";
-chrome.runtime.sendMessage({
-    action: "DEBUG_LOG",
-    dados: mensagem
-});
-
 function detectarLoginLinkedIn() {
     const urlAtual = window.location.href;
 
@@ -23,8 +17,7 @@ function detectarLoginLinkedIn() {
         return true;
     }
 
-    // Verifica por elementos de login que aparecem como overlay na própria página de resultados
-    // (LinkedIn frequentemente não redireciona, mas mostra um bloqueio na mesma URL)
+
     const seletoresDeLogin = [
         'form[action*="/uas/login"]',
         'form[action*="/login"]',
@@ -40,7 +33,6 @@ function detectarLoginLinkedIn() {
 
 
 function extrairDadosBusca() {
-    // Detecta redirecionamento ou overlay de login
     if (detectarLoginLinkedIn()) {
         chrome.runtime.sendMessage({
             action: "DEBUG_LOG",

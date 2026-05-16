@@ -6,6 +6,93 @@ let scriptsRecebidos = 0;
 let buscaEmAndamento = false;
 let scraperWindowId = null;
 let loginNecessarioAtivo = false;
+let searchTimeout = null;
+
+function detectarLoginPelaUrl(url) {
+    if (!url) return null;
+    const lowerUrl = url.toLowerCase();
+    const loginPatterns = [
+        "linkedin.com/login",
+        "linkedin.com/authwall",
+        "linkedin.com/checkpoint",
+        "linkedin.com/uas/",
+        "instagram.com/accounts/login",
+        "instagram.com/login",
+        "google.com/service/login",
+        "google.com/accounts/login",
+        "accounts.google.com"
+    ];
+
+    if (loginPatterns.some(pattern => lowerUrl.includes(pattern))) {
+        if (lowerUrl.includes("linkedin")) return "LinkedIn";
+        if (lowerUrl.includes("instagram")) return "Instagram";
+        if (lowerUrl.includes("google")) return "Google";
+    }
+    return null;
+}
+
+function dispararToastLogin(plataforma, url) {
+    const mensagem = "chegou no disparar toast";
+    chrome.runtime.sendMessage({
+        action: "DEBUG_LOG",
+        dados: mensagem
+    });
+    if (loginNecessarioAtivo) return;
+
+    const statusDiv = document.getElementById('status');
+    if (statusDiv) {
+        statusDiv.style.color = "#ff6b6b";
+        statusDiv.innerText = `Aguardando login no ${plataforma}...`;
+    }
+
+    const toastContent = document.createElement("div");
+    toastContent.style.display = "flex";
+    toastContent.style.flexDirection = "column";
+    toastContent.style.gap = "10px";
+    toastContent.innerHTML = `
+        <div style="font-family: 'Outfit', sans-serif; font-size: 14px;">
+            <strong>Login necessário:</strong> ${plataforma}.<br>
+            Acesse a aba aberta para logar e clique abaixo para continuar.
+        </div>
+        <button id="btnRetomarBusca" style="
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        ">Retomar Busca</button>
+    `;
+
+    const toast = Toastify({
+        node: toastContent,
+        duration: -1,
+        close: true,
+        gravity: "top",
+        position: "right",
+        stopOnFocus: true,
+        style: {
+            background: "linear-gradient(to right, #1a1a1a, #2d2d2d)",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
+            borderRadius: "10px",
+            border: "1px solid #444",
+            padding: "15px"
+        }
+    }).showToast();
+
+    const btnRetomar = toastContent.querySelector("#btnRetomarBusca");
+    btnRetomar.onmouseover = () => btnRetomar.style.opacity = "0.8";
+    btnRetomar.onmouseout = () => btnRetomar.style.opacity = "1";
+    btnRetomar.onclick = () => {
+        toast.hideToast();
+        realizarBusca(consultaAtual);
+    };
+
+    processarLoginNecessario(plataforma, url);
+}
 
 export function isBuscaEmAndamento() {
     return buscaEmAndamento;
@@ -21,8 +108,6 @@ function setBuscaUI(ativa) {
         btnBack.title = ativa ? 'Aguarde a busca finalizar' : 'Voltar para a tela inicial';
     }
 }
-
-
 
 export function realizarBusca(consulta) {
     const statusDiv = document.getElementById('status');
@@ -71,11 +156,34 @@ export function realizarBusca(consulta) {
                 focused: false
             }, (win) => {
                 scraperWindowId = win.id;
+                // Verificação imediata caso o redirecionamento ocorra no primeiro carregamento
+                if (win.tabs) {
+                    win.tabs.forEach(tab => {
+                        const plataforma = detectarLoginPelaUrl(tab.url || tab.pendingUrl);
+                        if (plataforma) {
+                            dispararToastLogin(plataforma, tab.url || tab.pendingUrl);
+                        }
+                    });
+                }
             });
 
             statusDiv.style.color = "#ffffff";
             statusDiv.innerText = `Busca iniciada em ${totalScripts} plataforma(s)...`;
             setBuscaUI(true);
+
+            // Timeout de segurança: se nada acontecer em 25 segundos, destrava a UI
+            if (searchTimeout) clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (buscaEmAndamento) {
+                    statusDiv.style.color = "#ff6b6b";
+                    statusDiv.innerText = "A busca demorou muito a responder. Verifique sua conexão ou se há bloqueios.";
+                    setBuscaUI(false);
+                    if (scraperWindowId) {
+                        chrome.windows.remove(scraperWindowId).catch(() => { });
+                        scraperWindowId = null;
+                    }
+                }
+            }, 35000);
         });
     } else {
         statusDiv.style.color = "#aaaaaa";
@@ -83,31 +191,41 @@ export function realizarBusca(consulta) {
     }
 }
 
-const mensagem = "fora da funçaõ realizar busca";
-chrome.runtime.sendMessage({
-    action: "DEBUG_LOG",
-    dados: mensagem
-});
 
 // Ouve as mensagens de qualquer scraper que terminar o trabalho (registrado apenas uma vez)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const statusDiv = document.getElementById('status');
-    const mensagem = "dentro do ouvido dos scrapers";
+    
+    // Log para depuração de comunicação
     chrome.runtime.sendMessage({
         action: "DEBUG_LOG",
-        dados: mensagem
+        dados: `[GESTAO] Recebeu mensagem: ${message.type} de windowId: ${sender?.tab?.windowId}. Esperado: ${scraperWindowId}`
     });
+
     if (!scraperWindowId || !sender?.tab || sender.tab.windowId !== scraperWindowId) {
         return;
     }
-    chrome.tabs.remove(sender.tab.id).catch(() => { });
+    
+    // Se recebeu algo do windowID correto, limpa o timeout pois houve atividade
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            if (buscaEmAndamento) {
+                statusDiv.style.color = "#ff6b6b";
+                statusDiv.innerText = "A busca demorou muito a responder. Verifique sua conexão ou se há bloqueios.";
+                setBuscaUI(false);
+                scraperWindowId = null;
+            }
+        }, 25000); 
+    }
 
     if (message.type === "DADOS_COLETADOS") {
-        const mensagem = "dados coletados linkedin";
+        chrome.tabs.remove(sender.tab.id).catch(() => { });
         chrome.runtime.sendMessage({
             action: "DEBUG_LOG",
-            dados: mensagem
+            dados: `[GESTAO] Processando ${message.dados.length} leads de ${message.dados[0]?.origem || 'origem desconhecida'}`
         });
+        
         exibirDetalhesDosLeads(message.dados, false);
         const leadsColetados = getLeadsColetados();
         if (!loginNecessarioAtivo) {
@@ -118,8 +236,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             criaHistorico(consultaAtual, leadsColetados);
             setBuscaUI(false);
             scraperWindowId = null;
+            if (searchTimeout) clearTimeout(searchTimeout);
         }
     } else if (message.type === "SEM_RESULTADOS") {
+        chrome.tabs.remove(sender.tab.id).catch(() => { });
         const leadsColetados = getLeadsColetados();
         if (!loginNecessarioAtivo && leadsColetados.length === 0) {
             statusDiv.innerText = "Nenhum resultado correspondente encontrado.";
@@ -130,15 +250,49 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             criaHistorico(consultaAtual, leadsColetados);
             setBuscaUI(false);
             scraperWindowId = null;
+            if (searchTimeout) clearTimeout(searchTimeout);
         }
     } else if (message.type === "LOGIN_NECESSARIO") {
-        if (statusDiv) {
-            statusDiv.style.color = "#ff6b6b";
-            statusDiv.innerHTML = `Login necessário no ${message.plataforma}. Clique no link para logar e tente novamente.`;
-        }
-        processarLoginNecessario(message.plataforma, message.url);
+        const mensagem = "mensagem de erro login necessario";
+        chrome.runtime.sendMessage({
+            action: "DEBUG_LOG",
+            dados: mensagem
+        });
+        dispararToastLogin(message.plataforma, message.url);
     }
 });
+
+// Monitoramento ativo de redirecionamentos para login
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (scraperWindowId && tab.windowId === scraperWindowId) {
+        // Verifica tanto a URL que mudou quanto a URL atual da aba
+        const urlParaVerificar = changeInfo.url || tab.url;
+        const plataforma = detectarLoginPelaUrl(urlParaVerificar);
+        if (plataforma) {
+            dispararToastLogin(plataforma, urlParaVerificar);
+        }
+    }
+});
+
+function processarLoginNecessario(plataforma, url) {
+    loginNecessarioAtivo = true;
+
+    // Fecha a janela oculta e abre uma janela visível para o login
+    if (scraperWindowId) {
+        chrome.windows.remove(scraperWindowId).catch(() => { });
+        scraperWindowId = null;
+    }
+
+    chrome.windows.create({
+        url: url,
+        focused: true,
+        state: "normal"
+    }, (win) => {
+        // Janela de login aberta
+    });
+
+    setBuscaUI(false);
+}
 
 function criaHistorico(consulta, leadsColetados) {
     chrome.storage.local.get({ historico: [], indexConsulta: 1 }, (result) => {
@@ -165,25 +319,4 @@ function criaHistorico(consulta, leadsColetados) {
             indexConsulta: currentIndex + 1
         });
     });
-}
-
-function processarLoginNecessario(plataforma, url) {
-    loginNecessarioAtivo = true;
-
-    // Fecha a janela oculta e abre uma janela visível para o login
-    if (scraperWindowId) {
-        chrome.windows.remove(scraperWindowId).catch(() => { });
-        scraperWindowId = null;
-    }
-
-    chrome.windows.create({
-        url: url,
-        focused: true,
-        state: "normal"
-    }, (win) => {
-        // Não guardamos o ID da janela de login como scraperWindowId 
-        // para evitar que o listener tente fechar abas nela.
-    });
-
-    setBuscaUI(false);
 }

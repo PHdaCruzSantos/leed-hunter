@@ -56,14 +56,20 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
     } else {
         leadsColetados = [...leadsColetados, ...novosLeads];
     }
+
+    chrome.runtime.sendMessage({
+        action: "DEBUG_LOG",
+        dados: `[RESULTADOS] Total de leads para renderizar: ${leadsColetados.length}`
+    });
+
     const resultsLista = document.getElementById('resultsLista');
     if (!resultsLista) return;
 
     resultsLista.innerHTML = "";
 
-    const leadsGoogle = leadsColetados.filter(item => item.origem && item.origem.includes('google'));
-    const leadsLinkedIn = leadsColetados.filter(item => item.origem && item.origem.includes('linkedin'));
-    const leadsInstagram = leadsColetados.filter(item => item.origem && item.origem.includes('instagram'));
+    const leadsGoogle = leadsColetados.filter(item => item.origem && item.origem.toLowerCase().includes('google'));
+    const leadsLinkedIn = leadsColetados.filter(item => item.origem && item.origem.toLowerCase().includes('linkedin'));
+    const leadsInstagram = leadsColetados.filter(item => item.origem && item.origem.toLowerCase().includes('instagram'));
 
     // seção do Google
     if (leadsGoogle.length > 0) {
