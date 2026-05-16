@@ -38,16 +38,41 @@ function dispararToastLogin(plataforma, url) {
     if (plataforma === "Instagram") {
         loginNecessarioAtivo = true;
 
-        // Finaliza a busca atual imediatamente para evitar suspeitas do Instagram
-        if (scraperWindowId) {
-            chrome.windows.remove(scraperWindowId).catch(() => { });
-            scraperWindowId = null;
+        if (totalScripts === 1) {
+            // Finaliza a busca atual imediatamente para evitar suspeitas do Instagram
+            if (scraperWindowId) {
+                chrome.windows.remove(scraperWindowId).catch(() => { });
+                scraperWindowId = null;
+            }
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+                searchTimeout = null;
+            }
+            setBuscaUI(false);
+        } else {
+            // Se há outras plataformas, fecha apenas a aba do Instagram na janela oculta
+            if (scraperWindowId) {
+                chrome.tabs.query({ windowId: scraperWindowId }, (tabs) => {
+                    tabs.forEach(tab => {
+                        if (tab.url && tab.url.includes('instagram')) {
+                            chrome.tabs.remove(tab.id).catch(() => {});
+                        }
+                    });
+                });
+            }
+            
+            // Marca o script do Instagram como "processado" para as outras plataformas terminarem normalmente
+            scriptsRecebidos++;
+            if (scriptsRecebidos >= totalScripts) {
+                const leads = getLeadsColetados();
+                if (leads.length > 0) {
+                    criaHistorico(consultaAtual, leads);
+                }
+                setBuscaUI(false);
+                scraperWindowId = null;
+                if (searchTimeout) clearTimeout(searchTimeout);
+            }
         }
-        if (searchTimeout) {
-            clearTimeout(searchTimeout);
-            searchTimeout = null;
-        }
-        setBuscaUI(false);
 
         const toastContent = document.createElement("div");
         toastContent.style.display = "flex";
@@ -75,7 +100,7 @@ function dispararToastLogin(plataforma, url) {
         const toast = Toastify({
             node: toastContent,
             duration: -1,
-            close: true,
+            close: false,
             gravity: "top",
             position: "right",
             stopOnFocus: true,
@@ -94,7 +119,9 @@ function dispararToastLogin(plataforma, url) {
         btnEntendi.onmouseup = () => btnEntendi.style.transform = "scale(1)";
         btnEntendi.onclick = () => {
             toast.hideToast();
-            window.location.href = "popup.html";
+            if (totalScripts === 1) {
+                window.location.href = "popup.html";
+            }
         };
         return;
     }
@@ -130,7 +157,7 @@ function dispararToastLogin(plataforma, url) {
     const toast = Toastify({
         node: toastContent,
         duration: -1,
-        close: true,
+        close: false,
         gravity: "top",
         position: "right",
         stopOnFocus: true,

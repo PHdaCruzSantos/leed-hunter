@@ -72,12 +72,17 @@ function extrairDadosBusca() {
 
         const paragrafos = linkElemento.querySelectorAll(SELETORES.profissao);
 
-        if (paragrafos.length > 1) {
-            profissao = paragrafos[1].innerText.trim();
+        if (paragrafos.length > 0) {
+            let primeiroParagrafo = paragrafos[0].innerText.trim();
+            if (primeiroParagrafo.toLowerCase() === nome.toLowerCase() && paragrafos.length > 1) {
+                profissao = paragrafos[1].innerText.trim();
+            } else {
+                profissao = primeiroParagrafo;
+            }
+        }
 
-        } else if (paragrafos.length === 1 && !paragrafos[0].innerText.includes(nome)) {
-            profissao = paragrafos[0].innerText.trim();
-
+        if (profissao && profissao !== "Não especificada") {
+            profissao = profissao.split('|')[0].trim();
         }
 
         const siteFormatado = formataLink(url);

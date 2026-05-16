@@ -25,23 +25,31 @@ export function downloadCSV(lista_de_leads, termo = "Busca", data = "") {
     };
 
     // --- SEÇÃO GOOGLE ---
-    csv += criarSecao("Leads coletados no Google", ["Nome", "Telefone", "Site"]);
-    leadsGoogle.forEach(item => {
-        csv += `"${item.nome}"${sep}"${item.telefone}"${sep}"${formatarSiteCsv(item.site)}"\n`;
-    });
+    if (leadsGoogle.length > 0) {
+        csv += criarSecao("Leads coletados no Google", ["Nome", "Telefone", "Site"]);
+        leadsGoogle.forEach(item => {
+            csv += `"${item.nome}"${sep}"${item.telefone}"${sep}"${formatarSiteCsv(item.site)}"\n`;
+        });
+        csv += "\n";
+    }
 
     // --- SEÇÃO LINKEDIN ---
-    csv += "\n" + criarSecao("Leads coletados no LinkedIn", ["Nome", "Profissão", "Site"]);
-    leadsLinkedin.forEach(item => {
-        csv += `"${item.nome}"${sep}"${item.profissao || ''}"${sep}"${formatarSiteCsv(item.site)}"\n`;
-    });
+    if (leadsLinkedin.length > 0) {
+        csv += criarSecao("Leads coletados no LinkedIn", ["Nome", "Profissão", "Site"]);
+        leadsLinkedin.forEach(item => {
+            csv += `"${item.nome}"${sep}"${item.profissao || ''}"${sep}"${formatarSiteCsv(item.site)}"\n`;
+        });
+        csv += "\n";
+    }
 
     // --- SEÇÃO INSTAGRAM ---
-    csv += "\n" + criarSecao("Leads coletados no Instagram", ["Nome", "Link da Conta", "Site"]);
-    leadsInstagram.forEach(item => {
-        // Para o Instagram, o siteBruto já é o link da conta
-        csv += `"${item.nome}"${sep}"${formatarSiteCsv(item.site)}"${sep}""\n`;
-    });
+    if (leadsInstagram.length > 0) {
+        csv += criarSecao("Leads coletados no Instagram", ["Nome", "Link da Conta", "Site"]);
+        leadsInstagram.forEach(item => {
+            csv += `"${item.nome}"${sep}"${formatarSiteCsv(item.site)}"${sep}""\n`;
+        });
+        csv += "\n";
+    }
 
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -246,7 +254,18 @@ export function downloadPDF(lista_de_leads, termo = "Busca", data = "") {
             text(C.muted);
             doc.setFont("helvetica", "normal");
             doc.setFontSize(8);
-            doc.text(infoSecundaria, cx + 5, cy + cardH - 7);
+            
+            const maxTextWidth = colW - 32; // Limita a largura para não invadir o botão (largura do card - margens e botão)
+            let linhasInfo = doc.splitTextToSize(infoSecundaria, maxTextWidth);
+            
+            // Limita a 2 linhas no máximo para não estourar o card
+            if (linhasInfo.length > 2) {
+                linhasInfo = [linhasInfo[0], linhasInfo[1].slice(0, -3) + "..."];
+            }
+            
+            // Se tiver duas linhas, sobe um pouco o texto para caber no layout do card
+            const infoY = linhasInfo.length > 1 ? cy + cardH - 9.5 : cy + cardH - 7;
+            doc.text(linhasInfo, cx + 5, infoY);
 
             // ── Tag "Ver contato" (estilo link azul) ──
             const tagW = 22, tagH = 6;
