@@ -22,6 +22,8 @@ function setBuscaUI(ativa) {
     }
 }
 
+
+
 export function realizarBusca(consulta) {
     const statusDiv = document.getElementById('status');
     const resultsLista = document.getElementById('resultsLista');
@@ -44,7 +46,7 @@ export function realizarBusca(consulta) {
                 urlsParaBuscar.push(`https://www.google.com/search?q=${queryFormatada}&tbm=lcl`);
             }
             if (ativas.linkedin) {
-                urlsParaBuscar.push(`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(consulta)}&origin=GLOBAL_SEARCH_HEADER`);
+                urlsParaBuscar.push(`https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(consulta)}&origin=SWITCH_SEARCH_VERTICAL`);
             }
             if (ativas.instagram) {
                 urlsParaBuscar.push(`https://www.instagram.com/web/search/topsearch/?context=blended&query=${encodeURIComponent(consulta)}`);
@@ -81,20 +83,31 @@ export function realizarBusca(consulta) {
     }
 }
 
+const mensagem = "fora da funçaõ realizar busca";
+chrome.runtime.sendMessage({
+    action: "DEBUG_LOG",
+    dados: mensagem
+});
+
 // Ouve as mensagens de qualquer scraper que terminar o trabalho (registrado apenas uma vez)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    const statusDiv = document.getElementById('status');
+    const mensagem = "dentro do ouvido dos scrapers";
+    chrome.runtime.sendMessage({
+        action: "DEBUG_LOG",
+        dados: mensagem
+    });
     if (!scraperWindowId || !sender?.tab || sender.tab.windowId !== scraperWindowId) {
         return;
     }
     chrome.tabs.remove(sender.tab.id).catch(() => { });
-    
+
     if (message.type === "DADOS_COLETADOS") {
-        const mensagem = "dentro de dados coletados";
+        const mensagem = "dados coletados linkedin";
         chrome.runtime.sendMessage({
             action: "DEBUG_LOG",
             dados: mensagem
         });
-        const statusDiv = document.getElementById('status');
         exibirDetalhesDosLeads(message.dados, false);
         const leadsColetados = getLeadsColetados();
         if (!loginNecessarioAtivo) {
@@ -107,7 +120,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             scraperWindowId = null;
         }
     } else if (message.type === "SEM_RESULTADOS") {
-        const statusDiv = document.getElementById('status');
         const leadsColetados = getLeadsColetados();
         if (!loginNecessarioAtivo && leadsColetados.length === 0) {
             statusDiv.innerText = "Nenhum resultado correspondente encontrado.";
@@ -120,147 +132,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             scraperWindowId = null;
         }
     } else if (message.type === "LOGIN_NECESSARIO") {
+        if (statusDiv) {
+            statusDiv.style.color = "#ff6b6b";
+            statusDiv.innerHTML = `Login necessário no ${message.plataforma}. Clique no link para logar e tente novamente.`;
+        }
         processarLoginNecessario(message.plataforma, message.url);
     }
 });
-
-
-
-
-
-
-
-
-
-function processarLoginNecessario(plataforma, urlLogin, tabId) {
-    const mensagem = "chegou na função login necessário";
-    chrome.runtime.sendMessage({
-        action: "DEBUG_LOG",
-        dados: mensagem
-    });
-    const statusDiv = document.getElementById('status');
-    loginNecessarioAtivo = true;
-    statusDiv.style.color = "#ffcc00";
-    
-    if (tabId) {
-        chrome.windows.create({
-            tabId: tabId,
-            focused: true,
-            type: "popup",
-            width: 500,
-            height: 600
-        });
-        statusDiv.innerHTML = `
-            Não é possível iniciar a busca no <strong>${plataforma}</strong> antes de efetuar o login. 
-            Por favor, acesse <a href="${urlLogin}">${urlLogin.replace("https://www.", "")}</a> para prosseguir.
-        `;
-    } else {
-        abrirLogin(urlLogin);
-    }
-
-    scriptsRecebidos++;
-    verificarFimDeBusca();
-}
-
-
-function verificaLogin(plataforma){  
-    chrome.windows.create({
-        url: urlsParaBuscar,
-        state: "minimized",
-        focused: false
-    }, (win) => {
-        scraperWindowId = win.id;
-            const tabsProcessadosParaLogin = new Set();
-            // monitora os redirecionamentos
-            const detectarLoginNaUrl = (url) => {
-                if (!url || typeof url !== 'string') return null;
-                
-                if (url.includes("linkedin.com/authwall") || url.includes("linkedin.com/login") || url.includes("linkedin.com/checkpoint")) {
-                    return { plataforma: "LinkedIn", urlLogin: "https://www.linkedin.com/login" };
-                }
-                if (url.includes("instagram.com/accounts/login")) {
-                    return { plataforma: "Instagram", urlLogin: "https://www.instagram.com/accounts/login/" };
-                }
-                return null;
-            };
-            const processarTabAtualizada = (tabId, changeInfo, tab) => {
-                if (tab.windowId !== scraperWindowId || tabsProcessadosParaLogin.has(tabId)) return;
-                const url = changeInfo.url || tab.url;
-                const loginInfo = detectarLoginNaUrl(url);
-    
-                if (loginInfo) {
-                    tabsProcessadosParaLogin.add(tabId);
-                    processarLoginNecessario(loginInfo.plataforma, loginInfo.urlLogin, tabId);
-                }
-            };
-            const updateListener = (tabId, changeInfo, tab) => {
-                processarTabAtualizada(tabId, changeInfo, tab);
-            };
-            
-            // verifica se o usuario fechou a aba manualmente
-            const removedListener = (tabId, removeInfo) => {
-                if (removeInfo.windowId === scraperWindowId) {
-                    if (scriptsRecebidos < totalScripts) {
-                        pararBuscaPorErro("Busca interrompida, pois aba de login foi fechada repentinamente.");
-                    }
-                }
-            };
-    
-            // Adiciona os listeners
-            chrome.tabs.onUpdated.addListener(updateListener);
-            chrome.tabs.onRemoved.addListener(removedListener);
-    
-            // Verifica imediatamente se algum dos tabs já iniciou em uma página de login
-            chrome.tabs.query({ windowId: scraperWindowId }, (tabs) => {
-                tabs.forEach(tab => {
-                    if (tabsProcessadosParaLogin.has(tab.id)) return;
-                    const loginInfo = detectarLoginNaUrl(tab.url);
-                    if (loginInfo) {
-                        tabsProcessadosParaLogin.add(tab.id);
-                        chrome.tabs.remove(tab.id).catch(() => { });
-                        processarLoginNecessario(loginInfo.plataforma, loginInfo.urlLogin);
-                    }
-                });
-            });
-    
-            const checkEnd = setInterval(() => {
-                if (!scraperWindowId) {
-                    chrome.tabs.onUpdated.removeListener(updateListener);
-                    chrome.tabs.onRemoved.removeListener(removedListener);
-                    clearInterval(checkEnd);
-                }
-            }, 1000);
-        });
-        setBuscaUI(true);
-}
-
-
-function pararBuscaPorErro(mensagem) {
-    // Reseta o estado global
-    scraperWindowId = null;
-
-    // Atualiza a UI apenas se houver uma mensagem nova e não for login
-    if (mensagem) {
-        const statusDiv = document.getElementById('status');
-        if (statusDiv) {
-            statusDiv.style.color = "#ff6b6b";
-            statusDiv.innerText = mensagem;
-        }
-    }
-    setBuscaUI(false); // Destrava botões de busca
-}
-
-
-function verificarFimDeBusca() {
-    if (scriptsRecebidos >= totalScripts) {
-        const leadsColetados = typeof getLeadsColetados === 'function' ? getLeadsColetados() : [];
-        criaHistorico(consultaAtual, leadsColetados);
-        setBuscaUI(false);
-        scraperWindowId = null;
-    }
-}
-
-
 
 function criaHistorico(consulta, leadsColetados) {
     chrome.storage.local.get({ historico: [], indexConsulta: 1 }, (result) => {
@@ -282,15 +160,30 @@ function criaHistorico(consulta, leadsColetados) {
         };
 
         const novoHistorico = [novaEntrada, ...result.historico].slice(0, 20);
-        //console.log("Novo hisotirco: ", novoHistorico);
-        //chrome.runtime.sendMessage({
-        //  action: "DEBUG_LOG",
-        //dados: novoHistorico
-        //});
-
         chrome.storage.local.set({
             historico: novoHistorico,
             indexConsulta: currentIndex + 1
         });
     });
+}
+
+function processarLoginNecessario(plataforma, url) {
+    loginNecessarioAtivo = true;
+
+    // Fecha a janela oculta e abre uma janela visível para o login
+    if (scraperWindowId) {
+        chrome.windows.remove(scraperWindowId).catch(() => { });
+        scraperWindowId = null;
+    }
+
+    chrome.windows.create({
+        url: url,
+        focused: true,
+        state: "normal"
+    }, (win) => {
+        // Não guardamos o ID da janela de login como scraperWindowId 
+        // para evitar que o listener tente fechar abas nela.
+    });
+
+    setBuscaUI(false);
 }

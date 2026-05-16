@@ -3,7 +3,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Outfit', 'Inter', sans-serif;
     padding: 25px;
     background-color: #212121;
     /* preto n mt preto */
@@ -24,12 +24,25 @@ body {
 }
 
 h2 {
+    font-family: 'Outfit', sans-serif;
+    /* Uma fonte bem redonda e moderna */
     color: #EDEAE0;
-    /* branco n mt branco */
-    margin-bottom: 25px;
     font-size: 22px;
-    letter-spacing: 1px;
+    font-weight: 300;
+    /* Mais fina para parecer elegante */
+    letter-spacing: 4px;
+    text-transform: uppercase;
+
+    border-left: 1px solid #EDEAE0;
+    padding-left: 20px;
+    margin-bottom: 40px;
+
+    /* Reflexo sutil embaixo */
+    -webkit-box-reflect: below -5px linear-gradient(transparent, rgba(255, 255, 255, 0.1));
 }
+
+
+
 
 .field-container {
     width: 100%;
@@ -140,6 +153,7 @@ button {
     font-size: 14px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
+    font-family: 'Outfit', sans-serif;
 }
 
 button:hover {
@@ -150,10 +164,12 @@ button:hover {
 }
 
 .status {
-    margin-top: 15px;
-    font-size: 16px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    font-size: 15px;
     color: #aaaaaa;
-    font-weight: bold;
+    font-weight: 300;
+    letter-spacing: 0.5px;
 }
 
 .results-container {
@@ -324,6 +340,7 @@ button:hover {
     margin-bottom: 6px;
     font-size: 16px;
     font-weight: normal;
+    font-family: 'Outfit', sans-serif;
 }
 
 .lead-card a {
@@ -347,44 +364,51 @@ button:hover {
     box-sizing: border-box;
 }
 
+/* --- Redesigned Export Area --- */
 .export-container {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.export-card {
+    background: #111111;
+    border: 1px solid #444444;
+    border-radius: 20px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin-top: 15px;
-    margin-bottom: 5px;
-    width: 100%;
+    gap: 15px;
+    width: 90%;
+    margin: 0 auto;
 }
 
-.export-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-}
-
-.export-buttons {
-    display: flex;
-    gap: 8px;
+.export-title {
+    color: #EDEAE0;
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 .export-checkboxes {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
+    gap: 20px;
+    width: 100%;
 }
 
 .export-checkbox {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
     cursor: pointer;
     color: #aaaaaa;
     font-size: 13px;
     transition: color 0.2s ease;
+    font-weight: 300;
 }
 
 .export-checkbox:hover {
@@ -394,10 +418,10 @@ button:hover {
 .export-checkbox input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
-    width: 15px;
-    height: 15px;
-    border: 1.5px solid #555555;
-    border-radius: 3px;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #555;
+    border-radius: 4px;
     background: transparent;
     cursor: pointer;
     position: relative;
@@ -419,34 +443,42 @@ button:hover {
     font-weight: bold;
 }
 
+.export-actions {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+    justify-content: center;
+    margin-top: 5px;
+}
+
 .btn-export {
     background-color: transparent;
-    color: #aaaaaa;
-    border: 1px solid transparent;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: bold;
+    color: #EDEAE0;
+    border: none;
+    padding: 5px 15px;
+    font-size: 18px;
+    font-weight: 300;
     cursor: pointer;
     width: auto;
     transition: all 0.3s ease;
     box-shadow: none;
+    letter-spacing: 1px;
+}
+
+.btn-export:hover {
+    color: #ffffff;
+    transform: scale(1.1);
+    background: none;
+    border: none;
+    box-shadow: none;
 }
 
 .btn-export.csv:hover {
-    background-color: rgba(76, 175, 80, 0.1);
-    border-color: #4caf50;
     color: #4caf50;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 .btn-export.pdf:hover {
-    background-color: rgba(255, 82, 82, 0.1);
-    border-color: #ff5252;
     color: #ff5252;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 .icon-back {
@@ -487,15 +519,20 @@ button:hover {
     color: #EDEAE0;
 }
 
-.history-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+
 
 .history-header span {
-    font-weight: bold;
+    font-family: 'Outfit', sans-serif;
+    color: #EDEAE0;
     font-size: 16px;
+    font-weight: 300;
+    text-transform: uppercase;
+
+    /*border-left: 1px solid #020101;*/
+    padding-left: 20px;
+    margin-bottom: 40px;
+
+    -webkit-box-reflect: below -10px linear-gradient(transparent, rgba(255, 255, 255, 0.1));
 }
 
 #historicoCard {
@@ -527,7 +564,7 @@ button:hover {
     font-size: 17px;
     padding: 20px 15px;
     color: #dddddd;
-    background: transparent;
+    background-color: transparent;
     border: 1px solid #555555;
     border-radius: 16px;
     text-align: left;
@@ -536,6 +573,8 @@ button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
 }
 
 .history-info {
@@ -715,8 +754,9 @@ button:hover {
 
 .platform-name {
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 300;
     color: #e0e0e0;
+    font-family: 'Outfit', sans-serif;
 }
 
 /* Interruptor (Toggle Switch) */
@@ -812,6 +852,7 @@ input:checked+.slider:before {
     text-align: center;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     animation: fadeInTooltip 0.2s ease;
+    font-family: 'Outfit', sans-serif;
 }
 
 .login-tooltip-overlay {
@@ -873,10 +914,53 @@ input:checked+.slider:before {
     width: 100%;
     box-sizing: border-box;
     text-align: center;
+    font-family: 'Outfit', sans-serif;
 }
 
 .login-error-bar a {
     color: #60a5fa;
     text-decoration: underline;
     font-weight: bold;
+}
+
+.no-site {
+    text-align: center;
+    color: #60a5fa;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* --- Toast Notification --- */
+.toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17, 24, 39, 0.95);
+    border: 1px solid #2563EB;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    z-index: 10000;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    animation: slideUpToast 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+}
+
+@keyframes slideUpToast {
+    from {
+        bottom: -50px;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
 }

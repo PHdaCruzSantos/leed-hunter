@@ -104,6 +104,7 @@ function renderizarHistorico() {
             const li = document.createElement('li');
             li.style.marginBottom = "10px";
             li.style.cursor = 'pointer';
+            li.style.background = "#111111";
 
             li.innerHTML = `
                 <div class="history-info">

@@ -30,5 +30,5 @@ function enviarDadosColetados(listaResultados) {
 
 function formataLink(site) {
     if (!site) return '';
-    return `<a href="${site}" target="_blank" rel="noopener noreferrer">Entrar em contato</a>`;
+    return `<a href="${site}" target="_blank" rel="noopener noreferrer">Ver perfil</a>`;
 }

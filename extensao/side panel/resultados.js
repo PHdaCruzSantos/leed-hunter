@@ -8,13 +8,6 @@ let googleLimite = 5;
 let linkedinLimite = 5;
 let instagramLimite = 5;
 
-// Persiste estado minimizado entre re-renders
-const minimizedState = { google: false, linkedin: false, instagram: false };
-
-export function getLeadsColetados() {
-    return leadsColetados;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     fetch('./src/icons.html')
         .then(response => response.text())
@@ -44,6 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Persiste estado minimizado entre re-renders
+const minimizedState = { google: false, linkedin: false, instagram: false };
+
+export function getLeadsColetados() {
+    return leadsColetados;
+}
 
 export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
     const mensagem = "exibir detalhes dos leads";
@@ -87,10 +87,11 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
         leadsGoogle.slice(0, googleLimite).forEach(item => {
             const card = document.createElement('div');
             card.className = 'lead-card';
+
             card.innerHTML = `
-            <strong>${item.nome}</strong>
-            <span> ${item.telefone}</span>
-            <span> ${item.site}</span>
+                <strong>${item.nome}</strong>
+                ${item.telefone ? `<span> ${item.telefone}</span>` : ''}
+                <span> ${item.site} </span>
             `;
             googleContainer.appendChild(card);
         });
@@ -143,10 +144,11 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
         leadsLinkedIn.slice(0, linkedinLimite).forEach(item => {
             const card = document.createElement('div');
             card.className = 'lead-card';
+
             card.innerHTML = `
-            <strong>${item.nome}</strong>
-            <span> ${item.profissao}</span>
-            <span> ${item.site}</span>
+                <strong>${item.nome}</strong>
+                ${item.profissao ? `<span> ${item.profissao}</span>` : ''}
+                <span> ${item.site}</span>
             `;
             linkedinContainer.appendChild(card);
         });
@@ -199,9 +201,10 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
         leadsInstagram.slice(0, instagramLimite).forEach(item => {
             const card = document.createElement('div');
             card.className = 'lead-card';
+
             card.innerHTML = `
-            <strong>${item.nome}</strong>
-            <span> ${item.site}</span>
+                <strong>${item.nome}</strong>
+                <span> ${item.site}</span>
             `;
             instagramContainer.appendChild(card);
         });
@@ -238,6 +241,10 @@ export function exibirDetalhesDosLeads(novosLeads, isHistorico = false) {
             statusDiv.innerText = `${leadsColetados.length} leads exibidos do histórico!`;
         }
     } else if (leadsColetados.length > 0) {
+        const statusDiv = document.getElementById('status');
+        if (statusDiv) {
+            statusDiv.innerText = `${leadsColetados.length} leads detectados!`;
+        }
         // Mostra área de exportação se houver leads
         document.getElementById('exportArea').style.display = 'flex';
     }
@@ -297,6 +304,8 @@ document.getElementById('btnCSV').addEventListener('click', () => {
     const leadsFiltrados = getLeadsFiltrados();
     if (leadsFiltrados.length > 0) {
         downloadCSV(leadsFiltrados, termoAtual, dataAtual);
+    } else {
+        showToast("Selecione pelo menos uma plataforma para exportar.");
     }
 });
 
@@ -304,6 +313,8 @@ document.getElementById('btnPDF').addEventListener('click', () => {
     const leadsFiltrados = getLeadsFiltrados();
     if (leadsFiltrados.length > 0) {
         downloadPDF(leadsFiltrados, termoAtual, dataAtual);
+    } else {
+        showToast("Selecione pelo menos uma plataforma para exportar.");
     }
 });
 
@@ -311,3 +322,21 @@ document.getElementById('btnBack').addEventListener('click', () => {
     if (isBuscaEmAndamento()) return;
     window.location.href = 'popup.html';
 });
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-container';
+    toast.innerHTML = `
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <use href="#icon-alert-circle"></use>
+        </svg>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}

@@ -1,13 +1,51 @@
 const SELETORES = {
-    link_perfil: 'a[href*="/in/"]',
-    profissao: 'p'
+    link_perfil: 'a[href*="/company/"]',
+    profissao: 'div > p > span'
 };
 
-function extrairDadosBusca() {
+const mensagem = "[LINKEDIN]chegou no scraper linkedin";
+chrome.runtime.sendMessage({
+    action: "DEBUG_LOG",
+    dados: mensagem
+});
 
-    // Detecta redirecionamento para página de login
+function detectarLoginLinkedIn() {
     const urlAtual = window.location.href;
-    if (urlAtual.includes('/login') || urlAtual.includes('/authwall') || urlAtual.includes('/checkpoint')) {
+
+    // Verifica por redirecionamento de URL para páginas de login conhecidas
+    if (
+        urlAtual.includes('/login') ||
+        urlAtual.includes('/authwall') ||
+        urlAtual.includes('/checkpoint') ||
+        urlAtual.includes('/uas/login') ||
+        urlAtual.includes('/signup')
+    ) {
+        return true;
+    }
+
+    // Verifica por elementos de login que aparecem como overlay na própria página de resultados
+    // (LinkedIn frequentemente não redireciona, mas mostra um bloqueio na mesma URL)
+    const seletoresDeLogin = [
+        'form[action*="/uas/login"]',
+        'form[action*="/login"]',
+        '.login__form',
+        'input[name="session_key"]',
+        '.authwall-join-form',
+        '[data-test-id="login-form"]',
+        '.join-page',
+    ];
+
+    return seletoresDeLogin.some(seletor => !!document.querySelector(seletor));
+}
+
+
+function extrairDadosBusca() {
+    // Detecta redirecionamento ou overlay de login
+    if (detectarLoginLinkedIn()) {
+        chrome.runtime.sendMessage({
+            action: "DEBUG_LOG",
+            dados: "[LINKEDIN] Login detectado — enviando LOGIN_NECESSARIO"
+        });
         chrome.runtime.sendMessage({
             type: "LOGIN_NECESSARIO",
             plataforma: "LinkedIn",
@@ -15,6 +53,11 @@ function extrairDadosBusca() {
         });
         return;
     }
+
+    chrome.runtime.sendMessage({
+        action: "DEBUG_LOG",
+        dados: "[LINKEDIN] Página de resultados carregada — iniciando extração"
+    });
 
     const linksPerfil = document.querySelectorAll(SELETORES.link_perfil);
     const listaResultados = [];

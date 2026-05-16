@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="popup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -15,33 +16,35 @@
 
     <div class="container">
 
+        <div id="queryInfo" style="margin-top: 10px; margin-bottom: 5px; color: #EDEAE0; font-size: 16px; font-weight: 300; letter-spacing: 1px;"></div>
+        
         <div id="status" class="status"></div>
 
         <div id="exportArea" class="export-container" style="display: none;">
-            <div class="export-header">
-                <span style="color: #EDEAE0; font-size: 14px; font-weight: bold;">Exportar dados:</span>
-                <div class="export-buttons">
+            <div class="export-card">
+                <span class="export-title">Exportar dados</span>
+                
+                <div class="export-checkboxes">
+                    <label class="export-checkbox">
+                        <input type="checkbox" id="chkGoogle" checked>
+                        <span>Google</span>
+                    </label>
+                    <label class="export-checkbox">
+                        <input type="checkbox" id="chkLinkedin" checked>
+                        <span>LinkedIn</span>
+                    </label>
+                    <label class="export-checkbox">
+                        <input type="checkbox" id="chkInstagram" checked>
+                        <span>Instagram</span>
+                    </label>
+                </div>
+
+                <div class="export-actions">
                     <button id="btnCSV" class="btn-export csv">CSV</button>
                     <button id="btnPDF" class="btn-export pdf">PDF</button>
                 </div>
             </div>
-            <div class="export-checkboxes">
-                <label class="export-checkbox">
-                    <input type="checkbox" id="chkGoogle" checked>
-                    <span>Google</span>
-                </label>
-                <label class="export-checkbox">
-                    <input type="checkbox" id="chkLinkedin" checked>
-                    <span>LinkedIn</span>
-                </label>
-                <label class="export-checkbox">
-                    <input type="checkbox" id="chkInstagram" checked>
-                    <span>Instagram</span>
-                </label>
-            </div>
         </div>
-
-        <div id="queryInfo" style="margin-top: 15px; margin-bottom: 15px; color: #EDEAE0; font-size: 16px;"></div>
 
         <div id="resultsLista" class="results-container"></div>
 

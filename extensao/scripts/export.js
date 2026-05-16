@@ -16,22 +16,31 @@ export function downloadCSV(lista_de_leads, termo = "Busca", data = "") {
         return bloco;
     };
 
+    const formatarSiteCsv = (siteBruto) => {
+        const url = extrairUrl(siteBruto);
+        if (!url || url === "Sem site") return "Sem site";
+        // IMPORTANTE: No CSV, aspas duplas dentro de uma célula entre aspas 
+        // devem ser duplicadas ("") para não corromper a fórmula.
+        return `=HYPERLINK(""${url}""; ""Entrar em contato"")`;
+    };
+
     // --- SEÇÃO GOOGLE ---
     csv += criarSecao("Leads coletados no Google", ["Nome", "Telefone", "Site"]);
     leadsGoogle.forEach(item => {
-        csv += `"${item.nome}"${sep}"${item.telefone}"${sep}"${item.site}"\n`;
+        csv += `"${item.nome}"${sep}"${item.telefone}"${sep}"${formatarSiteCsv(item.site)}"\n`;
     });
 
     // --- SEÇÃO LINKEDIN ---
     csv += "\n" + criarSecao("Leads coletados no LinkedIn", ["Nome", "Profissão", "Site"]);
     leadsLinkedin.forEach(item => {
-        csv += `"${item.nome}"${sep}"${item.profissao || ''}"${sep}"${item.site}"\n`;
+        csv += `"${item.nome}"${sep}"${item.profissao || ''}"${sep}"${formatarSiteCsv(item.site)}"\n`;
     });
 
     // --- SEÇÃO INSTAGRAM ---
     csv += "\n" + criarSecao("Leads coletados no Instagram", ["Nome", "Link da Conta", "Site"]);
     leadsInstagram.forEach(item => {
-        csv += `"${item.nome}"${sep}"${item.site}"${sep}""\n`;
+        // Para o Instagram, o siteBruto já é o link da conta
+        csv += `"${item.nome}"${sep}"${formatarSiteCsv(item.site)}"${sep}""\n`;
     });
 
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
@@ -243,17 +252,27 @@ export function downloadPDF(lista_de_leads, termo = "Busca", data = "") {
             const tagW = 22, tagH = 6;
             const tagX = cx + colW - tagW - 3;
             const tagY = cy + cardH - tagH - 3;
-            rr(tagX, tagY, tagW, tagH, 2, C.accentLt);
-            text(C.accent);
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(7);
-            doc.text("Ver contato →", tagX + tagW / 2, tagY + 3.8, { align: "center" });
 
             // Link clicável na tag
             let urlPura = extrairUrl(item.site);
-            if (urlPura && urlPura !== "Sem site") {
+            const temSite = urlPura && urlPura !== "Sem site" && urlPura !== "";
+
+            if (temSite) {
+                // Estilo botão com link
+                rr(tagX, tagY, tagW, tagH, 2, C.accentLt);
+                text(C.accent);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(8);
                 if (!urlPura.startsWith("http")) urlPura = "https://" + urlPura;
                 doc.link(tagX, tagY, tagW, tagH, { url: urlPura });
+                doc.text("Ver contato →", tagX + tagW / 2, tagY + 3.8, { align: "center" });
+            } else {
+                // Estilo informação neutra sem link
+                rr(tagX, tagY, tagW, tagH, 2, C.tagBg);
+                text(C.muted);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(7);
+                doc.text("Sem site", tagX + tagW / 2, tagY + 3.8, { align: "center" });
             }
         });
     }
